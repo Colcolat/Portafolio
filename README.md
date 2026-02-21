@@ -23,10 +23,6 @@
 
 ---
 
-## 🎮 Vista Previa
-
-![screenshot](./screenshot.png)
-
 ---
 
 ## ✨ Características
