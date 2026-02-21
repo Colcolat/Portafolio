@@ -9,7 +9,7 @@
  ╚═╝ ╚═╝    ╚══════╝╚═╝  ╚═╝╚══════╝
 ```
 
-# 🌴 PORTAFOLIO PERSONAL — JUAN JOSÉ ZAPATA BUENFIL 🌴
+#  PORTAFOLIO PERSONAL — JUAN JOSÉ ZAPATA BUENFIL 
 
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
@@ -17,25 +17,25 @@
 
 > *"Portafolio personal hecho con mucha fe y poca experiencia en el Frontend"*
 
-[🌐 Ver Portafolio](#) · [📁 Portafolio de Evidencias](https://github.com/Colcolat/Portafolio-de-Evidencias-Juan-Zapata)
+[Ver Portafolio](#) · [ Portafolio de Evidencias](https://github.com/Colcolat/Portafolio-de-Evidencias-Juan-Zapata)
 
 </div>
 
 ---
 
 
-## ✨ Características
+##  Características
 
-- 🌊 Estética **Vaporwave / Retrowave** con paleta de neón
-- 🎬 Animaciones CSS: glitch, palmeras, sol retro, grid perspectiva
-- ⌨️ Efecto **Typewriter** en el hero
-- 🖥️ Componentes estilo **ventana de OS retro**
-- ⭐ Fondo de estrellas animado con Canvas
-- 📱 Diseño responsivo
+-  Estética **Vaporwave / Retrowave** con paleta de neón
+-  Animaciones CSS: glitch, palmeras, sol retro, grid perspectiva
+-  Efecto **Typewriter** en el hero
+-  Componentes estilo **ventana de OS retro**
+-  Fondo de estrellas animado con Canvas
+-  Diseño responsivo
 
 ---
 
-## 🗂️ Estructura del Proyecto
+##  Estructura del Proyecto
 
 ```
 src/
@@ -56,7 +56,7 @@ src/
 
 ---
 
-## 🚀 Instalación
+##  Instalación
 
 ```bash
 # Clonar el repositorio
@@ -76,7 +76,7 @@ Abre [http://localhost:5173](http://localhost:5173) en tu navegador.
 
 ---
 
-## 🛠️ Tecnologías
+##  Tecnologías
 
 | Tecnología | Uso |
 |---|---|
@@ -88,10 +88,10 @@ Abre [http://localhost:5173](http://localhost:5173) en tu navegador.
 
 ---
 
-## 👤 Autor
+##  Autor
 
 **Juan José Zapata Buenfil**
-📍 Mérida, Yucatán, MX
+ Mérida, Yucatán, MX
 
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Colcolat)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/juan-josé-zapata-buenfil)
