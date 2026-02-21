@@ -17,7 +17,7 @@
 
 > *"Portafolio personal hecho con mucha fe y poca experiencia en el Frontend"*
 
-[Ver Portafolio](#) · [ Portafolio de Evidencias](https://github.com/Colcolat/Portafolio-de-Evidencias-Juan-Zapata)
+[Ver Portafolio](https://colcolat.github.io/Portafolio/) 
 
 </div>
 
