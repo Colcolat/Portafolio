@@ -21,7 +21,7 @@ export function Contact() {
           <div style={{ display:"flex", justifyContent:"center", gap:"1rem", flexWrap:"wrap" }}>
             <RetroBtn href="https://github.com/Colcolat" accent="var(--mauve)">⌥ GITHUB</RetroBtn>
             <RetroBtn href="https://www.linkedin.com/in/juan-jos%C3%A9-zapata-buenfil" accent="var(--cyan)">◈ LINKEDIN</RetroBtn>
-            <RetroBtn href="jj.zapatabuenfil@gmail.com" accent="var(--pink)" filled>✉ EMAIL</RetroBtn>
+            <RetroBtn href="mailto:jj.zapatabuenfil@gmail.com" accent="var(--pink)" filled>✉ EMAIL</RetroBtn>
           </div>
         </VCard>
       </Section>
