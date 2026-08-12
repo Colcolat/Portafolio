@@ -148,7 +148,7 @@ const Header = () => {
                   {/* Mobile: Brand Logo & Text (Left) */}
                   <a href="/" onClick={(e) => handleNavClick(e, '#home')} className="flex items-center gap-3">
                     <div>
-                      <h1 className="font-moderniz text-sm dark:text-[#00ffdc] text-slate-800 whitespace-nowrap">Juan Jose Zapata</h1>
+                      <h1 className="font-moderniz text-sm dark:text-[#00ffdc] text-slate-800 whitespace-nowrap">Juan Jose Zapata Buenfil</h1>
                       <p className="font-moderniz text-[9px] dark:text-[#00ffdc] text-slate-600" style={{ textShadow: 'none' }}>
                         Software Engineer
                       </p>
@@ -176,7 +176,7 @@ const Header = () => {
                     className="justify-self-center flex items-center gap-3"
                   >
                     <div className="block">
-                      <h1 className="font-moderniz text-base dark:text-[#00ffdc] text-slate-800">Juan Jose Zapata</h1>
+                      <h1 className="font-moderniz text-base dark:text-[#00ffdc] text-slate-800">Juan Jose Zapata Buenfil</h1>
                       <p className="font-moderniz text-[10px] dark:text-[#00ffdc] text-slate-600" style={{ textShadow: 'none' }}>
                         Software Engineer
                       </p>

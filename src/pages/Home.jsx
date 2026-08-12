@@ -149,7 +149,7 @@ const Home = () => {
                         className={`dark:text-white text-slate-800 text-center md:text-left px-4 md:px-8 transition-all duration-700 ${is3dEnabled ? 'md:w-1/2' : 'md:w-2/3'}`}
                     >
                         <p className="text-2xl dark:text-gray-300 text-slate-500 font-moderniz my" style={{ textShadow: theme === 'dark' ? "2px 2px 0 #000754, 4px 4px 0 #4079ff, 0 4px 12px #40ffaa, 0 1px 0 #00ffdc" : "none" }}>Hello, I'm</p>
-                        <h3 className="text-4xl font-bold dark:text-white text-slate-900 my-2 font-moderniz" style={{ textShadow: theme === 'dark' ? "2px 2px 0 #000754, 4px 4px 0 #4079ff, 0 4px 12px #40ffaa, 0 1px 0 #00ffdc" : "none" }}>Juan Jose Zapata</h3>
+                        <h3 className="text-4xl font-bold dark:text-white text-slate-900 my-2 font-moderniz" style={{ textShadow: theme === 'dark' ? "2px 2px 0 #000754, 4px 4px 0 #4079ff, 0 4px 12px #40ffaa, 0 1px 0 #00ffdc" : "none" }}>Juan Jose Zapata Buenfil</h3>
                         <p className="dark:text-white/80 text-slate-600 leading-relaxed mt-4 font-cascadia text-justify">
                             I build software. I'm drawn to problems that require both logical thinking and creativity, designing clean architecture, automating something tedious, or just making code that makes sense to the next person who reads it.
                         </p>
@@ -200,7 +200,7 @@ const Home = () => {
             </section>
 
             <footer className="py-12 pb-16 text-center text-gray-400 dark:bg-gradient-to-t dark:from-slate-900/50 dark:to-transparent bg-gradient-to-t from-slate-100/50 to-transparent">
-                <div className="text-sm">© {new Date().getFullYear()} Juan Jose Zapata. All rights reserved.</div>
+                <div className="text-sm">© {new Date().getFullYear()} Juan Jose Zapata Buenfil. All rights reserved.</div>
                 <div className="text-xs mt-2">Built with <span className="text-emerald-500">♥</span> using React, Tailwind CSS, and Framer Motion.</div>
             </footer>
         </motion.div>

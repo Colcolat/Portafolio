@@ -1,4 +1,4 @@
-# Juan Jose Zapata - Personal Portfolio
+# Juan Jose Zapata Buenfil - Personal Portfolio
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-View_Site-cyan?style=for-the-badge&logo=github)](https://colcolat.github.io/Portafolio/)
 

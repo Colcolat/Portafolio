@@ -68,7 +68,7 @@ const Preloader = ({ onFinished }) => {
                 animate={{ opacity: 1, scale: 1, transition: { duration: 0.8, delay: 0.2, ease: "easeOut" } }}
                 className="text-4xl md:text-6xl font-moderniz font-bold mb-4"
               >
-                Juan Jose Zapata
+                Juan Jose Zapata Buenfil
               </motion.h1>
               <motion.div
                 initial={{ opacity: 0 }}
