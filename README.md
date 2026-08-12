@@ -1,98 +1,55 @@
-# PROJEK PORTFOLIO ZAIN AHMAD FAHREZI
+# Juan Jose Zapata - Personal Portfolio
 
-Ini adalah proyek React yang dikembangkan menggunakan Vite — sebuah build tool modern dengan performa tinggi, dukungan Hot Module Replacement (HMR), dan waktu pengembangan yang cepat. Proyek ini menampilkan portfolio interaktif dengan elemen 3D dan animasi yang halus.
+Welcome to my personal interactive portfolio repository! This project serves as a showcase of my skills, projects, and professional background as a Software Engineer.
 
-> ⚠️ Proyek ini masih dalam **tahap pengembangan aktif**. Mohon tidak menyalin, menjiplak, atau mendistribusikan ulang sebagian atau seluruh isi proyek ini **tanpa mencantumkan sumber atau izin dari pembuat.**
+## 🚀 About The Project
 
----
+This portfolio is built to be dynamic, interactive, and visually striking. It features a modern design aesthetic with smooth animations, 3D elements, and a clean user interface that highlights my certifications and technical projects (such as SkillVault, PokéBattle Terminal, and others).
 
-## 📆 Teknologi yang Digunakan
+### 🛠️ Built With
 
-### Core & Frontend
-* ⚛️ [React](https://react.dev/)
-* ⚡ [Vite](https://vitejs.dev/)
-* 💨 [Tailwind CSS](https://tailwindcss.com/)
-* 🧪 [ESLint](https://eslint.org/)
+The portfolio leverages modern web development technologies to ensure high performance and an engaging user experience:
 
-### Backend & Database
-* 🔥 [Supabase](https://supabase.com/)
+* **[React](https://reactjs.org/)** - For building the user interface.
+* **[Vite](https://vitejs.dev/)** - Next Generation Frontend Tooling for fast builds.
+* **[Tailwind CSS](https://tailwindcss.com/)** - For rapid and responsive UI styling.
+* **[Framer Motion](https://www.framer.com/motion/)** - For fluid page transitions and micro-animations.
+* **[Three.js](https://threejs.org/) & [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction)** - For rendering interactive 3D elements (like the lanyard badge on the hero section).
 
-### Animasi & 3D
-* 🧊 [Three.js](https://threejs.org/) & [React Three Fiber](https://docs.pmnd.rs/react-three-fiber)
-* 🎬 [Framer Motion](https://www.framer.com/motion/)
-* 🎭 [GSAP](https://greensock.com/gsap/)
+## 💡 Features
 
----
+- **Responsive Design**: fully optimized for desktop and mobile devices.
+- **3D Interactive Elements**: Integrated WebGL experiences to stand out.
+- **Project Showcase**: Detailed modals with links to source code and live web apps.
+- **Certifications**: Verified credentials and continuous learning achievements.
+- **Dark/Light Theme**: Support for system and user-toggled themes.
 
-## 🛠️ Cara Menjalankan Proyek Ini
+## 🏃‍♂️ Running Locally
 
-1. **Clone repositori ini:**
+To run this project on your local machine:
 
+1. Clone the repository:
    ```bash
-   git clone https://github.com/username/zain-portofolio.git
-   cd zain-portofolio
+   git clone https://github.com/Colcolat/Portafolio.git
    ```
-
-2. **Install dependencies:**
-
+2. Navigate into the directory:
+   ```bash
+   cd Portafolio
+   ```
+3. Install dependencies:
    ```bash
    npm install
    ```
-
-3. **Konfigurasi Environment:**
-
-   Salin file `.env.example` menjadi `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-   *Pastikan variabel environment untuk Supabase sudah terisi dengan benar.*
-
-4. **Jalankan project secara lokal:**
-
+4. Start the development server:
    ```bash
    npm run dev
    ```
 
-   Setelah itu buka browser ke: [http://localhost:5173](http://localhost:5173)
+## 🙏 Acknowledgements & Credits
 
-5. **Build untuk produksi (opsional):**
+A special thanks to the original creator of this portfolio template. This project was built upon their excellent foundational work. 
 
-   ```bash
-   npm run build
-   ```
+* **Original Creator:** [ZainAhmadF28](https://github.com/ZainAhmadF28)
+* **Original Template Repository:** [zain-portofolio](https://github.com/ZainAhmadF28/zain-portofolio)
 
----
-
-## ❗ Hak Cipta & Lisensi
-
-Proyek ini adalah karya asli milik **Zain Ahmad Fahrezi** dan hanya diperbolehkan untuk digunakan sebagai referensi pribadi.
-
-🚫 **Dilarang keras menjiplak, mengupload ulang, atau menggunakan sebagian/keseluruhan kode tanpa mencantumkan sumber atau tanpa izin.**
-
-📄 Untuk informasi lisensi atau kerja sama, silakan hubungi saya langsung melalui GitHub.
-
----
-
-## 📌 Catatan Tambahan
-
-Jika kamu ingin mengembangkan proyek ini lebih lanjut atau menggunakan sebagian ide/kodenya, **wajib mencantumkan sumber dengan link ke repositori ini**.
-
-Terima kasih sudah menghargai karya pengembang! 🙏
-
----
-
-## 💖 Dukung Pengembang
-
-Jika kamu merasa proyek ini bermanfaat dan ingin memberikan dukungan:
-
-* 💳 **Dana:** 0896-0433-2830
-* 🏦 **Rekening BRI:** 0342 0107 8321 503 a.n. Zain Ahmad Fahrezi
-* 🅿️ **PayPal:** [paypal.me/zainahmadfahrezi](https://paypal.me/zainahmadfahrezi)
-
-Setiap dukungan sangat berarti dan membantu saya untuk terus mengembangkan proyek-proyek open source lainnya. Terima kasih! 🙌
-
-## 🌐 Sosial Media
-
-* 💼 [LinkedIn](https://www.linkedin.com/in/zainahmadfahrezi)
-* 📸 Instagram: [@zain.ahmadf](https://www.instagram.com/zain.ahmadf)
-* 🎥 TikTok: [@zainahmad.f](https://www.tiktok.com/@zainahmad.f)
+All credit for the original design, structure, and 3D boilerplate goes to them. I highly recommend checking out their work!
