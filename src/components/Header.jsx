@@ -186,11 +186,10 @@ const Header = () => {
                 <div className="w-full flex items-center justify-between md:hidden">
                   {/* Mobile: Brand Logo & Text (Left) */}
                   <a href="/" onClick={(e) => handleNavClick(e, '#home')} className="flex items-center gap-3">
-                    <img src={bangzenLogo} alt="Bangzen Logo" className="h-12 w-12 flex-shrink-0" />
                     <div>
-                      <h1 className="font-moderniz text-sm dark:text-[#00ffdc] text-slate-800 whitespace-nowrap">Zain Ahmad Fahrezi</h1>
+                      <h1 className="font-moderniz text-sm dark:text-[#00ffdc] text-slate-800 whitespace-nowrap">Juan Jose Zapata</h1>
                       <p className="font-moderniz text-[9px] dark:text-[#00ffdc] text-slate-600" style={{ textShadow: 'none' }}>
-                        Let's see the awesome Experience
+                        Software Engineer
                       </p>
                     </div>
                   </a>
@@ -215,11 +214,10 @@ const Header = () => {
                     onClick={(e) => handleNavClick(e, '#home')}
                     className="justify-self-center flex items-center gap-3"
                   >
-                    <img src={bangzenLogo} alt="Bangzen Logo" className="h-12 w-12" />
                     <div className="block">
-                      <h1 className="font-moderniz text-base dark:text-[#00ffdc] text-slate-800">Zain Ahmad Fahrezi</h1>
+                      <h1 className="font-moderniz text-base dark:text-[#00ffdc] text-slate-800">Juan Jose Zapata</h1>
                       <p className="font-moderniz text-[10px] dark:text-[#00ffdc] text-slate-600" style={{ textShadow: 'none' }}>
-                        Let's see the awesome Experience
+                        Software Engineer
                       </p>
                     </div>
                   </a>
@@ -234,13 +232,6 @@ const Header = () => {
                       <NavLink href="#about">About</NavLink>
                       <NavLink href="#contact">Contact</NavLink>
                     </ul>
-                    <button
-                      onClick={handleAdminAccess}
-                      className="flex items-center gap-2 dark:text-slate-400 text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors duration-300 pointer-events-auto"
-                      title={isAuthenticated ? "Admin Dashboard" : "Admin Login"}
-                    >
-                      <FaShieldAlt className={`text-lg ${isAuthenticated ? 'text-green-500' : 'currentColor'}`} />
-                    </button>
                   </div>
                 </div>
 
@@ -261,10 +252,8 @@ const Header = () => {
           { label: 'About', link: '#about', onClick: (e) => handleNavClick(e, '#about') },
           { label: 'Contact', link: '#contact', onClick: (e) => handleNavClick(e, '#contact') },
         ]}
-        socialItems={[
-          { label: 'Admin', link: '#', onClick: (e) => { e.preventDefault(); handleAdminAccess(); } }
-        ]}
-        displaySocials={true}
+        socialItems={[]}
+        displaySocials={false}
         displayItemNumbering={true}
         colors={['#0891b2', '#06b6d4', '#155e75']} // Cyan palette
         accentColor="#06b6d4"
