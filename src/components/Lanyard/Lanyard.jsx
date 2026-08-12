@@ -8,7 +8,7 @@ import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import * as THREE from 'three';
 
 // 🧩 Ganti import glb menjadi path dari public/
-const cardGLB = '/models/card.glb';
+const cardGLB = import.meta.env.BASE_URL + 'models/card.glb';
 // 🧩 Tetap bisa pakai png dari src
 import lanyard from '../../assets/Lanyard/lanyard.png';
 

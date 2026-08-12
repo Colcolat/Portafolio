@@ -539,7 +539,10 @@ function ProjectSection() {
       };
     }
     // Static data already in correct format
-    return p;
+    return {
+      ...p,
+      image: p.image?.startsWith('/') ? import.meta.env.BASE_URL + p.image.slice(1) : p.image
+    };
   });
 
   console.log('🔄 Transformed projects:', transformedProjects.length);
@@ -555,7 +558,10 @@ function ProjectSection() {
   console.log('✨ Filtered projects to display:', filteredProjects.length);
 
   // Use database certificates if available, fallback to static data
-  const activeCertificates = certificatesFromDB.length > 0 ? certificatesFromDB : userCertificates;
+  const activeCertificates = (certificatesFromDB.length > 0 ? certificatesFromDB : userCertificates).map(c => ({
+    ...c,
+    image: c.image?.startsWith('/') ? import.meta.env.BASE_URL + c.image.slice(1) : c.image
+  }));
 
   // === CHANGE START: Handler untuk tombol Show More/Less ===
   const handleShowMore = () => {
