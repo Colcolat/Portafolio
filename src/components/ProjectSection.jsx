@@ -30,7 +30,7 @@ const dummyProjects = [
     liveLink: "http://skillvault-env.eba-rb388z7p.us-east-1.elasticbeanstalk.com/",
     githubLink: "https://github.com/Colcolat/SkillVault",
     liveDemoText: "Open Web App",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image: "/projects/SkillVault.png",
     category: "Web/Apps",
   },
   {
@@ -39,7 +39,7 @@ const dummyProjects = [
     tech: ["Java", "OOP", "Terminal"],
     liveLink: null,
     githubLink: "https://github.com/Colcolat/POKEMON_ProyectoFinal.git",
-    image: "https://images.unsplash.com/photo-1613771404784-3a5686aa2be3?q=80&w=2069&auto=format&fit=crop",
+    image: "/projects/PokeBattle.png",
     category: "Web/Apps",
   },
   {
@@ -48,7 +48,7 @@ const dummyProjects = [
     tech: ["React", "Tailwind CSS", "Framer Motion", "Three.js"],
     liveLink: null,
     githubLink: "https://github.com/Colcolat/Portafolio",
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop",
+    image: "/projects/Portafolio.png",
     category: "Web/Apps",
   },
 ];
