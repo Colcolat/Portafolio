@@ -4,10 +4,7 @@ import { FaShieldAlt, FaSun, FaMoon } from 'react-icons/fa';
 import bangzenLogo from '../assets/images/BGZENBGIJObulat.png';
 import { useNavbar } from '../contexts/NavbarContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { useAdmin } from '../contexts/AdminContext';
 import { useLocation, useNavigate } from 'react-router-dom';
-import AdminLogin from './AdminLogin';
-import AdminDashboard from './AdminDashboard';
 import { StaggeredMenu } from './StaggeredMenu';
 
 const CLIP_PATH =
@@ -16,11 +13,7 @@ const CLIP_PATH =
 const Header = () => {
   // const [isMenuOpen, setIsMenuOpen] = useState(false); // REPLACED BY CONTEXT
   const [isScrolled, setIsScrolled] = useState(false);
-  const [showAdminLogin, setShowAdminLogin] = useState(false);
-  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
-
   const { isNavbarVisible, hideNavbar, showNavbar, isMenuOpen, setIsMenuOpen } = useNavbar();
-  const { isAuthenticated, logout } = useAdmin();
   const { theme, toggleTheme } = useTheme();
 
   const location = useLocation();
@@ -47,38 +40,6 @@ const Header = () => {
       window.scrollTo(0, 0);
     }
   }, [location]);
-
-  const handleAdminAccess = () => {
-    if (isAuthenticated) {
-      setShowAdminDashboard(true);
-      hideNavbar();
-    } else {
-      setShowAdminLogin(true);
-      hideNavbar();
-    }
-  };
-
-  const handleLoginSuccess = () => {
-    setShowAdminLogin(false);
-    setShowAdminDashboard(true);
-    hideNavbar();
-  };
-
-  const handleAdminLogout = () => {
-    logout();
-    setShowAdminDashboard(false);
-    showNavbar();
-  };
-
-  const handleCloseAdminDashboard = () => {
-    setShowAdminDashboard(false);
-    showNavbar();
-  };
-
-  const handleCloseAdminLogin = () => {
-    setShowAdminLogin(false);
-    showNavbar();
-  };
 
   // Improved Navigation Handler
   const handleNavClick = (e, href) => {
@@ -257,19 +218,6 @@ const Header = () => {
         displayItemNumbering={true}
         colors={['#0891b2', '#06b6d4', '#155e75']} // Cyan palette
         accentColor="#06b6d4"
-      />
-
-      {/* Admin Login Modal */}
-      <AdminLogin
-        isOpen={showAdminLogin}
-        onClose={handleCloseAdminLogin}
-        onSuccess={handleLoginSuccess}
-      />
-
-      {/* UNIFIED Admin Dashboard */}
-      <AdminDashboard
-        isOpen={showAdminDashboard}
-        onClose={handleCloseAdminDashboard}
       />
 
       {/* Animasi gradient keyframes */}
