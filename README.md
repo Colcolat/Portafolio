@@ -2,11 +2,11 @@
 
 Welcome to my personal interactive portfolio repository! This project serves as a showcase of my skills, projects, and professional background as a Software Engineer.
 
-## 🚀 About The Project
+## About The Project
 
 This portfolio is built to be dynamic, interactive, and visually striking. It features a modern design aesthetic with smooth animations, 3D elements, and a clean user interface that highlights my certifications and technical projects (such as SkillVault, PokéBattle Terminal, and others).
 
-### 🛠️ Built With
+### Built With
 
 The portfolio leverages modern web development technologies to ensure high performance and an engaging user experience:
 
@@ -16,7 +16,7 @@ The portfolio leverages modern web development technologies to ensure high perfo
 * **[Framer Motion](https://www.framer.com/motion/)** - For fluid page transitions and micro-animations.
 * **[Three.js](https://threejs.org/) & [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction)** - For rendering interactive 3D elements (like the lanyard badge on the hero section).
 
-## 💡 Features
+## Features
 
 - **Responsive Design**: fully optimized for desktop and mobile devices.
 - **3D Interactive Elements**: Integrated WebGL experiences to stand out.
@@ -24,7 +24,7 @@ The portfolio leverages modern web development technologies to ensure high perfo
 - **Certifications**: Verified credentials and continuous learning achievements.
 - **Dark/Light Theme**: Support for system and user-toggled themes.
 
-## 🏃‍♂️ Running Locally
+## Running Locally
 
 To run this project on your local machine:
 
@@ -45,7 +45,7 @@ To run this project on your local machine:
    npm run dev
    ```
 
-## 🙏 Acknowledgements & Credits
+## Acknowledgements & Credits
 
 A special thanks to the original creator of this portfolio template. This project was built upon their excellent foundational work. 
 
