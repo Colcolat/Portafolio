@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion } from 'react-platform-specific-or-something'; // Wait, let's use the actual imports
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGithub, FaLinkedin, FaPaperPlane, FaUser, FaEnvelope, FaComment } from 'react-icons/fa';
 
