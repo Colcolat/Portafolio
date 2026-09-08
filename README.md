@@ -24,7 +24,9 @@ The active application uses:
 - A full-portfolio dialog with native focus containment, Escape to close and focus restoration.
 - Three original projects, eleven certificates, twenty-four skills and downloadable English/Spanish CVs.
 - Byte Snake with pause, restart and a locally saved high score. A starts/pauses, and the directional pad steers.
-- Optional synthesized button sounds, off by default, and a working power switch.
+- Synthesized button sounds, on by default after a user interaction, and a working power switch. Sound can be muted from the header.
+- English/Spanish interface and a light/dark appearance switch. Sound, language and appearance choices are saved locally; the site still works if browser storage is blocked. Names, official credentials and original files are preserved.
+- A subtle, cursor-following 3D perspective on the physical console case. The screen remains flat and interactive; tilt settles while using console controls and is disabled for touch pointers or reduced-motion preferences.
 - Responsive layouts, reduced-motion support, descriptive controls and a skip-to-portfolio link.
 - Contact links and a contact form that opens an encoded email draft in the visitor's own email app.
 
@@ -53,7 +55,7 @@ To run this project on your local machine:
 
 `src/data/portfolio.js` is the source of truth for the original profile, projects, certificates and skills. The original screenshots, certificate images and CVs live in `public`. The project called Portfolio retains its original description and screenshot as an archive of the previous edition.
 
-All asset URLs respect the Vite base path `/Portafolio/`. Run `npm run build` for production, `npm run lint` for the active application and `npm run preview` to review the build. Publication is a separate action; `npm run deploy` publishes to the existing GitHub Pages branch.
+All asset URLs respect the Vite base path `/Portafolio/`. Run `npm run build` for production, `npm run lint` for the active application, `npm test` for preference/translation/motion checks and `npm run preview` to review the build. Publication is a separate action; `npm run deploy` publishes to the existing GitHub Pages branch.
 
 To show activity-gallery records, configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as in `.env.example`. Without these variables the rest of the portfolio works normally and the gallery shows an empty state. No gallery records are bundled or invented.
 

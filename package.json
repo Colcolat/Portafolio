@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "lint": "eslint src/App.jsx src/main.jsx src/components/PixelArt.jsx src/hooks src/data",
+    "test": "node --test tests/*.test.mjs",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
