@@ -11,7 +11,7 @@ const Contact = () => {
 
   const handleContactSubmit = (e) => {
     e.preventDefault();
-    const mailtoLink = `mailto:jjzb.developer@gmail.com?subject=Contact from ${contactForm.name}&body=${contactForm.message} (%0A%0AFrom: ${contactForm.email})`;
+    const mailtoLink = `mailto:jj.zapatabuenfil@gmail.com?subject=Contact from ${contactForm.name}&body=${contactForm.message} (%0A%0AFrom: ${contactForm.email})`;
     window.location.href = mailtoLink;
     setContactForm({ name: '', email: '', message: '' });
   };

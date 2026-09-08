@@ -1,30 +1,32 @@
-# Juan Jose Zapata Buenfil - Personal Portfolio
+# Juan Jose Zapata Buenfil — Pocket Portfolio
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-View_Site-cyan?style=for-the-badge&logo=github)](https://colcolat.github.io/Portafolio/)
 
-Welcome to my personal interactive portfolio repository! This project serves as a showcase of my skills, projects, and professional background as a Software Engineer.
+An interactive, pocket-console portfolio for Juan Jose Zapata Buenfil. A working directional pad, A/B buttons, LCD screen, and an editorial reading view present the original projects, skills, certifications and CVs.
 
 ## About The Project
 
-This portfolio is built to be dynamic, interactive, and visually striking. It features a modern design aesthetic with smooth animations, 3D elements, and a clean user interface that highlights my certifications and technical projects (such as SkillVault, PokéBattle Terminal, and others).
+The pocket edition uses layered CSS to create the handheld hardware: an ivory case, olive LCD, physical-looking controls, speaker slots and a power switch. The interface is original; content and documents are preserved from the previous portfolio.
 
 ### Built With
 
-The portfolio leverages modern web development technologies to ensure high performance and an engaging user experience:
+The active application uses:
 
 * **[React](https://reactjs.org/)** - For building the user interface.
 * **[Vite](https://vitejs.dev/)** - Next Generation Frontend Tooling for fast builds.
-* **[Tailwind CSS](https://tailwindcss.com/)** - For rapid and responsive UI styling.
-* **[Framer Motion](https://www.framer.com/motion/)** - For fluid page transitions and micro-animations.
-* **[Three.js](https://threejs.org/) & [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction)** - For rendering interactive 3D elements (like the lanyard badge on the hero section).
+* **CSS** — For the hardware, responsive layout and motion.
+* **Supabase (optional)** — For reading existing activity-gallery entries when configured.
+* **Self-hosted fonts** — Instrument Serif, DM Sans and Silkscreen; OFL licenses are in `public/fonts`.
 
 ## Features
 
-- **Responsive Design**: fully optimized for desktop and mobile devices.
-- **3D Interactive Elements**: Integrated WebGL experiences to stand out.
-- **Project Showcase**: Detailed modals with links to source code and live web apps.
-- **Certifications**: Verified credentials and continuous learning achievements.
-- **Dark/Light Theme**: Support for system and user-toggled themes.
+- Pointer, touch and keyboard controls: arrow keys navigate, Z selects, X goes back, Enter opens the menu. Select cycles sections. Keyboard shortcuts leave text fields and the reading dialog alone.
+- A full-portfolio dialog with native focus containment, Escape to close and focus restoration.
+- Three original projects, eleven certificates, twenty-four skills and downloadable English/Spanish CVs.
+- Byte Snake with pause, restart and a locally saved high score. A starts/pauses, and the directional pad steers.
+- Optional synthesized button sounds, off by default, and a working power switch.
+- Responsive layouts, reduced-motion support, descriptive controls and a skip-to-portfolio link.
+- Contact links and a contact form that opens an encoded email draft in the visitor's own email app.
 
 ## Running Locally
 
@@ -47,11 +49,21 @@ To run this project on your local machine:
    npm run dev
    ```
 
+## Content and configuration
+
+`src/data/portfolio.js` is the source of truth for the original profile, projects, certificates and skills. The original screenshots, certificate images and CVs live in `public`. The project called Portfolio retains its original description and screenshot as an archive of the previous edition.
+
+All asset URLs respect the Vite base path `/Portafolio/`. Run `npm run build` for production, `npm run lint` for the active application and `npm run preview` to review the build. Publication is a separate action; `npm run deploy` publishes to the existing GitHub Pages branch.
+
+To show activity-gallery records, configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as in `.env.example`. Without these variables the rest of the portfolio works normally and the gallery shows an empty state. No gallery records are bundled or invented.
+
+Two original data details are intentionally preserved: the English for Business and Entrepreneurship credential is dated `OCT, 2026`, and the AWS DevOps credential has no verification URL. The latter offers its original image for download instead.
+
 ## Acknowledgements & Credits
 
-A special thanks to the original creator of this portfolio template. This project was built upon their excellent foundational work. 
+The previous version was based on the following portfolio template. Its original license and attribution remain in this repository.
 
 * **Original Creator:** [ZainAhmadF28](https://github.com/ZainAhmadF28)
 * **Original Template Repository:** [zain-portofolio](https://github.com/ZainAhmadF28/zain-portofolio)
 
-All credit for the original design, structure, and 3D boilerplate goes to them. I highly recommend checking out their work!
+The pocket edition replaces the active presentation and interaction code; the references above credit the earlier version and retained legacy files.
