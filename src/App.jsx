@@ -146,6 +146,7 @@ export default function App() {
   const audioRef = useRef(null);
   const swipeStart = useRef(null);
   const consoleMotionRef = useRef(null);
+  const consoleResetRef = useRef(null);
   useConsoleTilt(consoleMotionRef);
   const game = useByteGame({ enabled: powered && section === 'game' && !reader });
   const { turn: turnSnake, primary: controlSnake } = game;
@@ -257,7 +258,7 @@ export default function App() {
       <section className="console-stage" aria-label={t("Interactive pocket portfolio")}>
         <p className="stage-caption eyebrow"><span /> {t("LESS SCROLL. MORE PLAY.")}</p>
         <div className="console-motion" ref={consoleMotionRef}>
-        <Suspense fallback={null}><ConsoleModel hostRef={consoleMotionRef} powered={powered} pressed={pressed} theme={theme} /></Suspense>
+        <Suspense fallback={null}><ConsoleModel hostRef={consoleMotionRef} resetRef={consoleResetRef} powered={powered} pressed={pressed} theme={theme} /></Suspense>
         <div className={`handheld ${!powered ? 'powered-off' : ''}`}>
           <div className="case-seam" /><div className="side-ridges"><i /><i /><i /><i /><i /></div>
           <button className="power-switch" role="switch" aria-checked={powered} aria-label={t("Console power")} onClick={() => { setPowered(value => !value); beep(300); }}><span>OFF</span><i /><span>ON</span><b>◂</b></button>
@@ -292,6 +293,7 @@ export default function App() {
         </div>
         </div>
         <div className="console-shadow" /><p className="console-caption eyebrow"><span className="tiny-led" /> {t("PLAYER 01 · READY TO EXPLORE")}</p>
+        <div className="console-orbit-tools"><span>{t('Drag the case to rotate')}</span><button type="button" onClick={() => consoleResetRef.current?.()} aria-label={t('Reset console view')}>↺ {t('Reset view')}</button></div>
         <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
       </section>
 

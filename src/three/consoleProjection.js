@@ -3,10 +3,10 @@ import { Euler, MathUtils, Matrix4 } from 'three';
 export const CAMERA_DISTANCE = 14;
 export const CANVAS_PADDING = { x: 0.18, y: 0.12 };
 
-export function consoleRotation(tiltX = 0, tiltY = 0) {
+export function consoleRotation(tiltX = 0, tiltY = 0, dragX = 0, dragY = 0) {
   return new Euler(
-    MathUtils.degToRad(8 - tiltX),
-    MathUtils.degToRad(-22 + tiltY),
+    MathUtils.degToRad(8 - tiltX + dragX),
+    MathUtils.degToRad(-22 + tiltY + dragY),
     MathUtils.degToRad(5),
     'XYZ',
   );

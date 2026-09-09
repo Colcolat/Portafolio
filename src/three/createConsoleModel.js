@@ -143,6 +143,16 @@ export function createConsoleModel() {
   jack.rotation.x = 0;
   roundSolid('Cartridge slot', 2.24, 0.048, 0.02, 0.14, cavity, 0, 3.288, -0.43, 0.003);
 
+  // Physical controls remain protected even when their raised geometry extends
+  // past the HTML hit area at an oblique viewing angle.
+  const protectedParts = [
+    'Recessed display bezel', 'LCD recessed bed', 'LCD glass backing', 'Power indicator',
+    'Ribbed power switch', 'Directional pad recess', 'Directional pad assembly',
+    'select socket', 'select button', 'start socket', 'start button',
+  ];
+  for (const name of protectedParts) group.getObjectByName(name).userData.dragBlocked = true;
+  actions.userData.dragBlocked = true;
+
   for (const object of new Set(Object.values(controls))) object.userData.restZ = object.position.z;
   group.userData = { controls, led, lcd, switchGroup, center, dimensions: { width: CONSOLE_WIDTH, height: CONSOLE_HEIGHT, depth: 0.75 } };
   return group;

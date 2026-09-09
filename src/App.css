@@ -276,6 +276,17 @@ h1 em{color:#6b7558;font-weight:400;line-height:1.08}
 .console-motion[data-renderer=webgl]{transform:none;transform-style:flat;perspective:var(--model-perspective);perspective-origin:50% 50%;will-change:auto}
 .console-motion[data-renderer=webgl]:before{display:none}
 .console-motion[data-renderer=webgl] .model-viewport{opacity:1;filter:drop-shadow(13px 22px 13px #26341d33)}
+.console-motion[data-renderer=webgl] .model-viewport,.console-motion[data-renderer=webgl] canvas{pointer-events:auto}
+.console-motion[data-renderer=webgl]{cursor:var(--console-cursor,auto)}
+.console-motion[data-renderer=webgl] .handheld{user-select:none;-webkit-user-select:none;backface-visibility:hidden}
+.console-motion[data-dragging=true],.console-motion[data-dragging=true] *{cursor:grabbing!important;user-select:none;-webkit-user-select:none}
+.console-motion[data-facing=back] .handheld{visibility:hidden;pointer-events:none}
+.console-orbit-tools{display:none;position:relative;z-index:3;align-items:center;justify-content:center;gap:12px;margin:20px 0 -13px;color:var(--olive);font:7px var(--mono);line-height:1.6;text-align:center}
+.console-orbit-tools button{min-height:32px;padding:5px 8px;border:1px solid var(--line);border-radius:3px;font-size:inherit;white-space:nowrap}
+.console-orbit-tools button:hover{background:var(--preference-hover);color:var(--ink)}
+.console-motion[data-renderer=webgl][data-rotated=true]~.console-orbit-tools{display:flex}
+@media(hover:hover) and (pointer:fine){.console-motion[data-renderer=webgl]~.console-orbit-tools{display:flex}}
+@media(hover:none),(pointer:coarse){.console-orbit-tools>span{display:none}}
 .console-motion[data-renderer=webgl] .handheld{background:transparent;border:0;box-shadow:none;transform:var(--model-transform);transform-origin:50% 50%;animation:none;z-index:1}
 .console-motion[data-renderer=webgl] .handheld:before,.console-motion[data-renderer=webgl] .handheld:after,.console-motion[data-renderer=webgl] .case-seam,.console-motion[data-renderer=webgl] .side-ridges,.console-motion[data-renderer=webgl] .speaker,.console-motion[data-renderer=webgl] .headphone-port{display:none}
 .console-motion[data-renderer=webgl] .screen-bezel,.console-motion[data-renderer=webgl] .lcd-shell,.console-motion[data-renderer=webgl] .power-switch i,.console-motion[data-renderer=webgl] .dpad-well,.console-motion[data-renderer=webgl] .action-buttons{background:transparent;box-shadow:none}

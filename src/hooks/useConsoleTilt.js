@@ -77,6 +77,10 @@ export function bindConsoleTilt(element, host = window) {
 
   function onPointerMove(event) {
     if (!enabled || doc.hidden) return;
+    if (element.dataset?.dragging === 'true') {
+      freeze();
+      return;
+    }
     if (event.pointerType === 'touch') {
       reset();
       return;
@@ -85,7 +89,7 @@ export function bindConsoleTilt(element, host = window) {
       reset();
       return;
     }
-    if (event.target?.closest?.('.handheld')) {
+    if (event.target?.closest?.('.handheld, .model-viewport')) {
       // Hold the visible angle on entry so controls cannot move away from a
       // click while the console would otherwise ease back to its resting pose.
       freeze();

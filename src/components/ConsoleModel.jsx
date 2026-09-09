@@ -2,8 +2,10 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { createConsoleModel, updateConsoleModel, disposeConsoleModel } from '../three/createConsoleModel';
 import { CAMERA_DISTANCE, consoleRotation, cssProjectionMatrix, projectionDimensions } from '../three/consoleProjection';
+import { createConsoleHitTest, isConsoleFrontVisible } from '../three/consoleHitTest';
+import { bindConsoleDrag } from '../hooks/consoleDrag';
 
-export default function ConsoleModel({ hostRef, powered, pressed, theme }) {
+export default function ConsoleModel({ hostRef, resetRef, powered, pressed, theme }) {
   const mountRef = useRef(null);
   const updateRef = useRef(null);
   const propsRef = useRef({ powered, pressed, theme });
@@ -13,7 +15,9 @@ export default function ConsoleModel({ hostRef, powered, pressed, theme }) {
     const host = hostRef.current;
     const mount = mountRef.current;
     if (!host || !mount) return undefined;
+    const front = host.querySelector('.handheld');
     let renderer, model, frame = null, disposed = false, failed = false;
+    let drag, dragPose = { x: 0, y: 0 };
     let dimensions, lastX = NaN, lastY = NaN, visible = true;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 50);
@@ -35,6 +39,11 @@ export default function ConsoleModel({ hostRef, powered, pressed, theme }) {
       if (frame !== null) cancelAnimationFrame(frame);
       frame = null;
       delete host.dataset.renderer;
+      delete host.dataset.dragging;
+      delete host.dataset.facing;
+      delete host.dataset.rotated;
+      drag?.dispose();
+      if (front) front.inert = false;
       host.style.removeProperty('--model-transform');
       host.style.removeProperty('--model-perspective');
     };
@@ -46,7 +55,7 @@ export default function ConsoleModel({ hostRef, powered, pressed, theme }) {
         const x = parseFloat(host.style.getPropertyValue('--tilt-x')) || 0;
         const y = parseFloat(host.style.getPropertyValue('--tilt-y')) || 0;
         lastX = x; lastY = y;
-        const rotation = consoleRotation(x, y);
+        const rotation = consoleRotation(x, y, dragPose.x, dragPose.y);
         model.rotation.copy(rotation);
         updateConsoleModel(model, propsRef.current);
         const dark = propsRef.current.theme === 'dark';
@@ -59,6 +68,10 @@ export default function ConsoleModel({ hostRef, powered, pressed, theme }) {
         host.style.setProperty('--model-transform', cssProjectionMatrix(rotation, dimensions.pixelsPerUnit));
         host.style.setProperty('--model-perspective', `${dimensions.perspective}px`);
         host.dataset.renderer = 'webgl';
+        const frontVisible = isConsoleFrontVisible(rotation);
+        host.dataset.facing = frontVisible ? 'front' : 'back';
+        host.dataset.rotated = String(dragPose.x !== 0 || dragPose.y !== 0);
+        if (front) front.inert = !frontVisible;
       } catch {
         restoreFallback();
       }
@@ -98,6 +111,26 @@ export default function ConsoleModel({ hostRef, powered, pressed, theme }) {
       return undefined;
     }
 
+    const hitCasing = createConsoleHitTest(model, camera, renderer.domElement);
+    const canGrab = event => !failed && host.dataset.renderer === 'webgl' && !document.querySelector('dialog[open]') && hitCasing(event);
+    drag = bindConsoleDrag(host, {
+      canStart: canGrab,
+      onPose: pose => { dragPose = pose; schedule(); },
+      onDraggingChange: active => { host.dataset.dragging = String(active); },
+    });
+    const resetView = () => {
+      drag.reset();
+      host.style.setProperty('--tilt-x', '0deg');
+      host.style.setProperty('--tilt-y', '0deg');
+      schedule();
+    };
+    resetRef.current = resetView;
+    const hover = event => {
+      if (host.dataset.dragging === 'true' || event.pointerType === 'touch') return;
+      host.style.setProperty('--console-cursor', canGrab(event) ? 'grab' : 'auto');
+    };
+    host.addEventListener('pointermove', hover, { passive: true });
+
     const styles = new MutationObserver(() => {
       const x = parseFloat(host.style.getPropertyValue('--tilt-x')) || 0;
       const y = parseFloat(host.style.getPropertyValue('--tilt-y')) || 0;
@@ -120,15 +153,23 @@ export default function ConsoleModel({ hostRef, powered, pressed, theme }) {
       disposed = true;
       if (frame !== null) cancelAnimationFrame(frame);
       updateRef.current = null;
+      resetRef.current = null;
+      drag.dispose();
+      host.removeEventListener('pointermove', hover);
       styles.disconnect(); observer.disconnect(); intersection.disconnect();
       document.removeEventListener('visibilitychange', visibility);
       renderer.domElement.removeEventListener('webglcontextlost', contextLost);
       renderer.dispose(); renderer.forceContextLoss(); renderer.domElement.remove();
       disposeConsoleModel(model);
       delete host.dataset.renderer;
+      delete host.dataset.dragging;
+      delete host.dataset.facing;
+      delete host.dataset.rotated;
+      if (front) front.inert = false;
+      host.style.removeProperty('--console-cursor');
       host.style.removeProperty('--model-transform'); host.style.removeProperty('--model-perspective');
     };
-  }, [hostRef]);
+  }, [hostRef, resetRef]);
 
   useEffect(() => { updateRef.current?.(); }, [powered, pressed, theme]);
   return <div className="model-viewport" ref={mountRef} aria-hidden="true" />;

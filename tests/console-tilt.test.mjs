@@ -27,7 +27,7 @@ function setup({ fine = true, reduced = false } = {}) {
   const doc = { ...emitter(), hidden: false, body: {}, dialogOpen: false,
     querySelector() { return this.dialogOpen ? {} : null; },
   };
-  const element = { style: {
+  const element = { dataset: {}, style: {
     getPropertyValue: property => values.get(property) ?? '',
     getPropertyPriority: () => '',
     setProperty: (property, value) => values.set(property, value),
@@ -58,7 +58,7 @@ function setup({ fine = true, reduced = false } = {}) {
       target: { closest: () => overConsole ? {} : null },
     });
   }
-  return { host, doc, pointer, motion, frames, values, cleanup, settle, move,
+  return { host, doc, element, pointer, motion, frames, values, cleanup, settle, move,
     openDialog() { doc.dialogOpen = true; observerCallback(); },
     disconnected: () => observerDisconnected,
   };
@@ -126,6 +126,22 @@ test('coarse pointers and reduced-motion preferences disable motion and can chan
     assert.equal(instance.frames.size, 0);
     instance.cleanup();
   }
+});
+
+test('manual dragging freezes automatic tilt even when the captured pointer leaves the case', () => {
+  const instance = setup();
+  instance.move();
+  instance.settle();
+  instance.element.dataset.dragging = 'true';
+  instance.host.emit('pointermove', { clientX: 0, clientY: 800, pointerType: 'mouse', target: { closest: () => null } });
+  assert.equal(instance.frames.size, 0);
+  assert.equal(instance.values.get('--tilt-x'), '3.000deg');
+  assert.equal(instance.values.get('--tilt-y'), '5.000deg');
+  instance.element.dataset.dragging = 'false';
+  instance.host.emit('pointermove', { clientX: 0, clientY: 800, pointerType: 'mouse', target: { closest: () => null } });
+  instance.settle();
+  assert.equal(instance.values.get('--tilt-y'), '-5.000deg');
+  instance.cleanup();
 });
 
 test('touch, blur, pointer leave, resizing and a hidden document cancel motion', () => {
