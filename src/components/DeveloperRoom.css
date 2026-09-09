@@ -1,0 +1,108 @@
+.developer-room-art {
+  --room-light: #c4d194;
+  --room-mid: #a9b979;
+  --room-shadow: #6e8150;
+  --room-dark: #344620;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  image-rendering: pixelated;
+}
+
+.developer-room {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 26px;
+  padding: 10px 0 4px;
+  color: var(--ink);
+}
+
+.developer-room__scene {
+  min-width: 0;
+  margin: 0;
+}
+
+.developer-room__frame {
+  padding: 6px;
+  border: 1px solid var(--olive);
+  background: var(--paper);
+  box-shadow: 5px 5px 0 var(--line);
+}
+
+.developer-room__scene figcaption {
+  margin-top: 16px;
+  font: 7px/1.7 var(--mono);
+  letter-spacing: .6px;
+  color: var(--olive);
+}
+
+.developer-room__notes { min-width: 0; }
+
+.developer-room__welcome {
+  margin: 0 0 12px;
+  font: 400 30px/1.05 'Instrument Serif', Georgia, serif;
+  letter-spacing: -.6px;
+}
+
+.developer-room__thanks {
+  margin: 0 0 22px;
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.developer-room__identity {
+  border-top: 1px solid var(--line);
+  padding-top: 17px;
+}
+
+.developer-room__name {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.developer-room__role {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.developer-room__notes blockquote {
+  margin: 18px 0;
+  padding: 0 0 0 12px;
+  border-left: 2px solid var(--olive);
+  font: italic 20px/1.2 'Instrument Serif', Georgia, serif;
+}
+
+.developer-room__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.developer-room__tools li {
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  font: 7px/1.4 var(--mono);
+}
+
+@media (max-width: 600px) {
+  .developer-room {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 23px;
+  }
+
+  .developer-room__scene {
+    width: min(100%, 350px);
+    margin-inline: auto;
+  }
+
+  .developer-room__welcome { font-size: 28px; }
+  .developer-room__thanks { margin-bottom: 17px; }
+}

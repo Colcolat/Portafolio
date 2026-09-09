@@ -25,6 +25,7 @@ The active application uses:
 - A full-portfolio dialog with native focus containment, Escape to close and focus restoration.
 - Three original projects, eleven certificates, twenty-four skills and downloadable English/Spanish CVs.
 - Byte Snake with pause, restart and a locally saved high score. A starts/pauses, and the directional pad steers.
+- A **Secrets found** collection at the bottom of the page, with locally saved, deduplicated discoveries. Undiscovered entries remain anonymous, and found rewards can be revisited. Only implemented secrets count toward the total; new ones will be introduced individually.
 - Synthesized button sounds, on by default after a user interaction, and a working power switch. Sound can be muted from the header.
 - English/Spanish interface and a light/dark appearance switch. Sound, language and appearance choices are saved locally; the site still works if browser storage is blocked. Names, official credentials and original files are preserved.
 - A real 3D console with beveled geometry, sidewalls, a rear shell, recessed speaker openings, moving buttons and lighting. The cursor gently changes the viewing angle outside the console; movement freezes over its controls and is disabled for touch pointers or reduced-motion preferences.
@@ -57,6 +58,12 @@ To run this project on your local machine:
 ## Content and configuration
 
 `src/data/portfolio.js` is the source of truth for the original profile, projects, certificates and skills. The original screenshots, certificate images and CVs live in `public`. The project called Portfolio retains its original description and screenshot as an archive of the previous edition.
+
+### Secret 01 (implementation notes / spoilers)
+
+The developer room is unlocked with **↑ ↑ ↓ ↓ ← → ← → B A**, using keyboard arrows plus B/A, the existing X/Z aliases, or the on-screen directional pad and B/A buttons. Enter/Start is not required. The reward appears on the LCD; A opens its reading view. It uses original pixel art and the existing profile, not invented personal information.
+
+`src/data/secrets.js` lists the implemented discoveries. `src/hooks/konamiCode.js` recognizes the sequence, ignores held keys and editing/browser shortcuts, and expires partial attempts after a 12-second gap. Inputs are disabled while powered off, playing Byte Snake, or using a dialog. `src/hooks/useSecrets.js` validates and saves the collection under `pocketfolio.secrets.v1`; blocked storage still permits discoveries for the current visit. Secrets are playful UI features, not access control.
 
 All asset URLs respect the Vite base path `/Portafolio/`. Run `npm run build` for production, `npm run lint` for the active application, `npm test` for preference/translation/motion/model/projection checks and `npm run preview` to review the build. Publication is a separate action; `npm run deploy` publishes to the existing GitHub Pages branch.
 

@@ -5,6 +5,11 @@ import useByteGame from './hooks/useByteGame';
 import usePreferences from './hooks/usePreferences';
 import { useConsoleTilt } from './hooks/useConsoleTilt';
 import { translate } from './data/translations';
+import useSecrets from './hooks/useSecrets';
+import { createKonamiMatcher, keyboardKonamiToken, isSecretInputBlocked } from './hooks/konamiCode';
+import { secretCatalog } from './data/secrets';
+import SecretsDialog from './components/SecretsDialog';
+import { DeveloperRoomArt } from './components/DeveloperRoom';
 
 // Keep the working CSS console if the optional 3D chunk cannot be loaded.
 const ConsoleModel = lazy(() => import('./components/ConsoleModel').catch(() => ({ default: () => null })));
@@ -138,6 +143,10 @@ export default function App() {
   const [selection, setSelection] = useState(0);
   const [index, setIndex] = useState(0);
   const [reader, setReader] = useState(null);
+  const [secretsView, setSecretsView] = useState(null);
+  const { foundIds, unlock } = useSecrets();
+  const codeRef = useRef(null);
+  if (!codeRef.current) codeRef.current = createKonamiMatcher();
   const [powered, setPowered] = useState(true);
   const { sound, setSound, language, setLanguage, theme, setTheme } = usePreferences();
   const t = useCallback((text, values) => translate(text, language, values), [language]);
@@ -148,7 +157,7 @@ export default function App() {
   const consoleMotionRef = useRef(null);
   const consoleResetRef = useRef(null);
   useConsoleTilt(consoleMotionRef);
-  const game = useByteGame({ enabled: powered && section === 'game' && !reader });
+  const game = useByteGame({ enabled: powered && section === 'game' && !reader && !secretsView });
   const { turn: turnSnake, primary: controlSnake } = game;
 
   useEffect(() => () => { clearTimeout(pressTimer.current); audioRef.current?.close(); }, []);
@@ -173,13 +182,38 @@ export default function App() {
     setPressed(button); clearTimeout(pressTimer.current);
     pressTimer.current = setTimeout(() => setPressed(''), 130);
   }, []);
+  const acceptSecretInput = useCallback(token => {
+    if (!powered || reader || secretsView || section === 'game' || section === 'secret') return false;
+    if (!codeRef.current.push(token)) return false;
+    unlock('developer-room');
+    setSection('secret'); setIndex(0);
+    consoleResetRef.current?.();
+    flash('a'); beep(880);
+    return true;
+  }, [powered, reader, secretsView, section, unlock, flash, beep]);
+  useEffect(() => {
+    if (!powered || reader || secretsView || section === 'game' || section === 'secret') codeRef.current.reset();
+  }, [powered, reader, secretsView, section]);
+  useEffect(() => {
+    if (section !== 'secret') return;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    consoleMotionRef.current?.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'instant' : 'smooth' });
+  }, [section]);
+  useEffect(() => {
+    const reset = () => codeRef.current.reset();
+    const visibility = () => { if (document.hidden) reset(); };
+    window.addEventListener('blur', reset);
+    document.addEventListener('visibilitychange', visibility);
+    return () => { window.removeEventListener('blur', reset); document.removeEventListener('visibilitychange', visibility); };
+  }, []);
   const chooseSection = useCallback((next) => {
     setSection(next); setIndex(0); setPowered(true);
     setSelection(Math.max(0, sections.findIndex(item => item.id === next)));
   }, []);
   const home = useCallback(() => { setSection('menu'); setIndex(0); }, []);
-  const direction = useCallback((dir) => {
-    if (!powered || reader) return;
+  const direction = useCallback((dir, registerSecret = true) => {
+    if (!powered || reader || secretsView) return;
+    if (registerSecret && acceptSecretInput(dir)) return;
     flash(dir); beep(320);
     if (section === 'game') { turnSnake(dir); return; }
     const delta = dir === 'left' || dir === 'up' ? -1 : 1;
@@ -187,22 +221,27 @@ export default function App() {
     const length = section === 'projects' ? projects.length : section === 'certificates' ? certificates.length : section === 'skills' ? skillGroups.length : 1;
     if (length > 1) setIndex(value => wrap(value + delta, length));
     else home();
-  }, [powered, reader, section, flash, beep, turnSnake, home]);
+  }, [powered, reader, secretsView, acceptSecretInput, section, flash, beep, turnSnake, home]);
   const primary = useCallback(() => {
-    if (!powered || reader) return;
+    if (!powered || reader || secretsView) return;
+    if (acceptSecretInput('a')) return;
     flash('a'); beep(660);
     if (section === 'menu') chooseSection(sections[selection].id);
     else if (section === 'game') controlSnake();
+    else if (section === 'secret') setSecretsView('room');
     else setReader({ section, index });
-  }, [powered, reader, flash, beep, section, selection, chooseSection, controlSnake, index]);
-  const secondary = useCallback(() => {
-    if (!powered) return;
+  }, [powered, reader, secretsView, acceptSecretInput, flash, beep, section, selection, chooseSection, controlSnake, index]);
+  const secondary = useCallback((registerSecret = true) => {
+    if (!powered || reader || secretsView) return;
+    if (registerSecret && acceptSecretInput('b')) return;
     flash('b'); beep(240); home();
-  }, [powered, flash, beep, home]);
+  }, [powered, reader, secretsView, acceptSecretInput, flash, beep, home]);
   const start = useCallback(() => {
+    codeRef.current.reset();
     setPowered(true); flash('start'); beep(520); home();
   }, [flash, beep, home]);
   const select = () => {
+    codeRef.current.reset();
     if (!powered) return;
     flash('select'); beep(380);
     const next = wrap(sections.findIndex(item => item.id === section) + 1, sections.length);
@@ -210,17 +249,21 @@ export default function App() {
   };
   useEffect(() => {
     const handleKey = (event) => {
-      if (reader || event.altKey || event.ctrlKey || event.metaKey || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
+      if (reader || secretsView || isSecretInputBlocked(event)) { codeRef.current.reset(); return; }
       const key = event.key.toLowerCase();
+      const token = keyboardKonamiToken(event);
       const arrows = { arrowup: 'up', arrowdown: 'down', arrowleft: 'left', arrowright: 'right' };
-      if (arrows[key]) { event.preventDefault(); direction(arrows[key]); }
+      if (arrows[key]) { event.preventDefault(); direction(arrows[key], !event.repeat); }
+      else if (key === 'a' || key === 'b') { if (token && acceptSecretInput(token)) event.preventDefault(); }
       else if (key === 'z') { event.preventDefault(); if (!event.repeat) primary(); }
-      else if (key === 'x' || key === 'escape') { event.preventDefault(); if (!event.repeat) secondary(); }
+      else if (key === 'x') { event.preventDefault(); if (!event.repeat) secondary(); }
+      else if (key === 'escape') { codeRef.current.reset(); event.preventDefault(); if (!event.repeat) secondary(false); }
       else if (key === 'enter' && (!event.target.closest('button, a') || event.target.closest('.handheld'))) { event.preventDefault(); if (!event.repeat) start(); }
+      else if (!event.repeat) codeRef.current.reset();
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [reader, direction, primary, secondary, start]);
+  }, [reader, secretsView, acceptSecretInput, direction, primary, secondary, start]);
   const openReader = (next = 'about', nextIndex = 0) => setReader({ section: next, index: nextIndex });
   const closeReader = useCallback(() => setReader(null), []);
   const selected = sections.find(item => item.id === section);
@@ -228,8 +271,8 @@ export default function App() {
   const currentProject = projects[index % projects.length];
   const currentCertificate = certificates[index % certificates.length];
   const currentSkills = skillGroups[index % skillGroups.length];
-  const screenTitle = section === 'menu' ? t('YOUR LITTLE WORLD') : section === 'game' ? 'BYTE SNAKE' : t(selected?.label).toUpperCase();
-  const announcement = !powered ? t('Console powered off') : section === 'menu' ? t('Menu: {section}', { section: t(sections[selection].label) }) : section === 'projects' ? t('Project {number}: {title}', { number: index + 1, title: currentProject.title }) : section === 'certificates' ? t('Certificate {number}: {title}', { number: index + 1, title: currentCertificate.title }) : section === 'skills' ? t(currentSkills.title) : section === 'game' ? t('Byte Snake. {status}. Score {score}', { status: t(game.status), score: game.score }) : t(selected?.label);
+  const screenTitle = section === 'menu' ? t('YOUR LITTLE WORLD') : section === 'secret' ? t('SECRET ROOM') : section === 'game' ? 'BYTE SNAKE' : t(selected?.label).toUpperCase();
+  const announcement = !powered ? t('Console powered off') : section === 'secret' ? t('Secret found: the developer room.') : section === 'menu' ? t('Menu: {section}', { section: t(sections[selection].label) }) : section === 'projects' ? t('Project {number}: {title}', { number: index + 1, title: currentProject.title }) : section === 'certificates' ? t('Certificate {number}: {title}', { number: index + 1, title: currentCertificate.title }) : section === 'skills' ? t(currentSkills.title) : section === 'game' ? t('Byte Snake. {status}. Score {score}', { status: t(game.status), score: game.score }) : t(selected?.label);
 
   return <div className="portfolio-page">
     <a className="skip-link" href="#full-portfolio" onClick={event => { event.preventDefault(); openReader(); }}>{t("Skip to full portfolio")}</a>
@@ -269,6 +312,7 @@ export default function App() {
               <div className={`lcd ${section === 'game' ? 'game-lcd' : ''}`} aria-label={t("Console screen")} onTouchStart={event => { swipeStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }} onTouchEnd={event => { if (!swipeStart.current) return; const dx = event.changedTouches[0].clientX - swipeStart.current.x; const dy = event.changedTouches[0].clientY - swipeStart.current.y; if (Math.max(Math.abs(dx), Math.abs(dy)) > 25) direction(Math.abs(dx) > Math.abs(dy) ? dx > 0 ? 'right' : 'left' : dy > 0 ? 'down' : 'up'); swipeStart.current = null; }}>
                 {powered ? <div className="screen-content" key={section}>
                   <div className="lcd-topline"><span>{screenTitle}</span><span>{section === 'menu' ? '01' : section === 'game' ? pad(game.score) : `${index + 1}/${count}`}</span></div>
+                  {section === 'secret' ? <div className="secret-lcd"><span className="secret-unlocked">✦ {t('SECRET UNLOCKED')} ✦</span><DeveloperRoomArt /><h2>{t('The developer room')}</h2><button className="lcd-open" onClick={primary}>{t('A: ENTER THE ROOM')}<span>↗</span></button></div> : <>
                   {section === 'menu' ? <div className="screen-menu">{sections.map((item, i) => <button key={item.id} className={selection === i ? 'active' : ''} aria-current={selection === i ? 'true' : undefined} onMouseEnter={() => setSelection(i)} onClick={() => chooseSection(item.id)}><span>{selection === i ? '▶' : ' '}</span>{t(item.label)}<small>{pad(i + 1)}</small></button>)}</div> : section === 'game' ? <div className="game-area"><svg className="snake-board" viewBox="0 0 120 120" role="img" aria-label={t('Snake board, score {score}', { score: game.score })}><defs><pattern id="game-grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0v10" fill="none" stroke="currentColor" strokeOpacity=".08" strokeWidth=".5" /></pattern></defs><rect width="120" height="120" fill="url(#game-grid)" />{game.snake.map((cell, i) => <rect key={`${cell.x}-${cell.y}`} x={cell.x * 10 + 1} y={cell.y * 10 + 1} width="8" height="8" fill="currentColor" opacity={i === 0 ? 1 : 0.7} />)}<rect x={game.food.x * 10 + 2} y={game.food.y * 10 + 2} width="6" height="6" fill="currentColor" /></svg>{game.status !== 'playing' && <div className="game-overlay"><strong>{t({ready: 'BYTE SNAKE', paused: 'TAKE A BREATHER', over: 'ONE MORE TRY?', won: 'YOU DID IT!'}[game.status])}</strong><p>{game.status === 'ready' ? t('Collect bytes. Keep growing.') : t('SCORE {score} · BEST {best}', { score: pad(game.score), best: pad(game.highScore) })}</p><button onClick={primary}>{t(game.status === 'paused' ? 'A: RESUME' : 'A: LET’S PLAY')}</button></div>}<span className="game-best">{t('BEST {best} · A: PAUSE', { best: pad(game.highScore) })}</span></div> : <div className="lcd-main" key={`${section}-${index}`}>
                     <div className="lcd-art"><span className="pixel-spark spark-one">✦</span><PixelArt name={section === 'projects' ? projectIcons[index] : selected?.icon} /><span className="pixel-spark spark-two">+</span></div>
                     <h2>{section === 'projects' ? currentProject.title : section === 'certificates' ? currentCertificate.title : t(section === 'skills' ? currentSkills.title : section === 'about' ? 'HELLO, I’M JUAN.' : section === 'contact' ? 'LET’S BUILD SOMETHING.' : 'LITTLE MOMENTS.')}</h2>
@@ -277,6 +321,7 @@ export default function App() {
                     <button className="lcd-open" onClick={primary}>{t(section === 'projects' ? 'OPEN PROJECT' : section === 'certificates' ? 'VIEW CREDENTIAL' : section === 'skills' ? 'EXPLORE TOOLKIT' : section === 'about' ? 'MEET THE MAKER' : section === 'contact' ? 'GET IN TOUCH' : 'OPEN GALLERY')}<span>↗</span></button>
                     {count > 1 && <><button className="lcd-arrow previous" aria-label={t('Previous {item}', { item: t(section === 'projects' ? 'project' : section === 'certificates' ? 'certificate' : 'skill group') })} onClick={() => direction('left')}>◂</button><button className="lcd-arrow next" aria-label={t('Next {item}', { item: t(section === 'projects' ? 'project' : section === 'certificates' ? 'certificate' : 'skill group') })} onClick={() => direction('right')}>▸</button></>}
                   </div>}
+                  </>}
                   <div className="lcd-bottomline"><button onClick={secondary}>B : {t(section === 'menu' ? 'BACK' : 'MENU')}</button><button onClick={start}>{t("START : HOME")}</button></div>
                 </div> : <button className="screen-off-message" onClick={() => setPowered(true)}>{t("A LITTLE WORLD")}<br />{t("IS WAITING.")}<span>{t("TURN POWER ON →")}</span></button>}
               </div>
@@ -308,6 +353,8 @@ export default function App() {
       </aside>
     </main>
     <footer className="site-footer"><span>© {new Date().getFullYear()} {profile.shortName}<span className="footer-dot">·</span>{t("BUILT WITH PURPOSE & LOGIC.")}</span><div><ExternalLink href={profile.github}>GitHub</ExternalLink><ExternalLink href={profile.linkedin}>LinkedIn</ExternalLink><button onClick={() => openReader('contact')}>{t("Say hello")} <Icon name="arrow" size={13} /></button></div><span className="footer-edition">{t("POCKET EDITION — VOL. 01")}</span></footer>
+    <div className="secrets-footer"><button type="button" id="secrets-found" className="secrets-footer-button" data-discovered={foundIds.length > 0} onClick={() => setSecretsView('collection')}><span className="secrets-footer-symbol" aria-hidden="true">✧</span>{t('Secrets found')}<span>{foundIds.length}/{secretCatalog.length}</span></button></div>
     {reader && <Reader reader={reader} setReader={setReader} onClose={closeReader} t={t} />}
+    {secretsView && <SecretsDialog view={secretsView} foundIds={foundIds} onView={setSecretsView} onClose={() => setSecretsView(null)} t={t} />}
   </div>;
 }
