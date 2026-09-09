@@ -1,10 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { profile, projects, certificates, skillGroups } from './data/portfolio';
 import PixelArt from './components/PixelArt';
 import useByteGame from './hooks/useByteGame';
 import usePreferences from './hooks/usePreferences';
 import { useConsoleTilt } from './hooks/useConsoleTilt';
 import { translate } from './data/translations';
+
+// Keep the working CSS console if the optional 3D chunk cannot be loaded.
+const ConsoleModel = lazy(() => import('./components/ConsoleModel').catch(() => ({ default: () => null })));
 
 const sections = [
   { id: 'projects', label: 'Selected work', icon: 'vault' },
@@ -254,6 +257,7 @@ export default function App() {
       <section className="console-stage" aria-label={t("Interactive pocket portfolio")}>
         <p className="stage-caption eyebrow"><span /> {t("LESS SCROLL. MORE PLAY.")}</p>
         <div className="console-motion" ref={consoleMotionRef}>
+        <Suspense fallback={null}><ConsoleModel hostRef={consoleMotionRef} powered={powered} pressed={pressed} theme={theme} /></Suspense>
         <div className={`handheld ${!powered ? 'powered-off' : ''}`}>
           <div className="case-seam" /><div className="side-ridges"><i /><i /><i /><i /><i /></div>
           <button className="power-switch" role="switch" aria-checked={powered} aria-label={t("Console power")} onClick={() => { setPowered(value => !value); beep(300); }}><span>OFF</span><i /><span>ON</span><b>◂</b></button>

@@ -6,7 +6,7 @@ An interactive, pocket-console portfolio for Juan Jose Zapata Buenfil. A working
 
 ## About The Project
 
-The pocket edition uses layered CSS to create the handheld hardware: an ivory case, olive LCD, physical-looking controls, speaker slots and a power switch. The interface is original; content and documents are preserved from the previous portfolio.
+The pocket edition uses a real Three.js model for the handheld hardware: a solid ivory case, recessed olive LCD, raised controls, speaker openings and a ribbed power switch. The screen stays interactive HTML, projected onto the front of the model. The interface is original; content and documents are preserved from the previous portfolio.
 
 ### Built With
 
@@ -14,7 +14,8 @@ The active application uses:
 
 * **[React](https://reactjs.org/)** - For building the user interface.
 * **[Vite](https://vitejs.dev/)** - Next Generation Frontend Tooling for fast builds.
-* **CSS** — For the hardware, responsive layout and motion.
+* **Three.js** — For the modeled case, buttons, lighting and real-time 3D perspective.
+* **CSS** — For the live LCD, responsive layout and a lightweight hardware fallback.
 * **Supabase (optional)** — For reading existing activity-gallery entries when configured.
 * **Self-hosted fonts** — Instrument Serif, DM Sans and Silkscreen; OFL licenses are in `public/fonts`.
 
@@ -26,7 +27,8 @@ The active application uses:
 - Byte Snake with pause, restart and a locally saved high score. A starts/pauses, and the directional pad steers.
 - Synthesized button sounds, on by default after a user interaction, and a working power switch. Sound can be muted from the header.
 - English/Spanish interface and a light/dark appearance switch. Sound, language and appearance choices are saved locally; the site still works if browser storage is blocked. Names, official credentials and original files are preserved.
-- A subtle, cursor-following 3D perspective on the physical console case. The screen remains flat and interactive; tilt settles while using console controls and is disabled for touch pointers or reduced-motion preferences.
+- A real 3D console with beveled geometry, sidewalls, a rear shell, recessed speaker openings, moving buttons and lighting. The cursor gently changes the viewing angle outside the console; movement freezes over its controls and is disabled for touch pointers or reduced-motion preferences.
+- The HTML display and accessible controls share the model's camera projection, so the original portfolio and game remain fully interactive. The optional 3D renderer loads separately, renders only when needed and pauses offscreen. If WebGL2 is unavailable or the graphics context is lost, the working CSS console remains available.
 - Responsive layouts, reduced-motion support, descriptive controls and a skip-to-portfolio link.
 - Contact links and a contact form that opens an encoded email draft in the visitor's own email app.
 
@@ -55,7 +57,9 @@ To run this project on your local machine:
 
 `src/data/portfolio.js` is the source of truth for the original profile, projects, certificates and skills. The original screenshots, certificate images and CVs live in `public`. The project called Portfolio retains its original description and screenshot as an archive of the previous edition.
 
-All asset URLs respect the Vite base path `/Portafolio/`. Run `npm run build` for production, `npm run lint` for the active application, `npm test` for preference/translation/motion checks and `npm run preview` to review the build. Publication is a separate action; `npm run deploy` publishes to the existing GitHub Pages branch.
+All asset URLs respect the Vite base path `/Portafolio/`. Run `npm run build` for production, `npm run lint` for the active application, `npm test` for preference/translation/motion/model/projection checks and `npm run preview` to review the build. Publication is a separate action; `npm run deploy` publishes to the existing GitHub Pages branch.
+
+The procedural model is defined in `src/three/createConsoleModel.js`, the shared camera math in `src/three/consoleProjection.js`, and the renderer lifecycle in `src/components/ConsoleModel.jsx`. There is no external model service or runtime asset download. Geometry and materials are disposed when the component is removed.
 
 To show activity-gallery records, configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as in `.env.example`. Without these variables the rest of the portfolio works normally and the gallery shows an empty state. No gallery records are bundled or invented.
 
