@@ -1,24 +1,29 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { createConsoleModel, updateConsoleModel, disposeConsoleModel } from '../three/createConsoleModel';
-import { CAMERA_DISTANCE, consoleRotation, cssProjectionMatrix, projectionDimensions } from '../three/consoleProjection';
-import { createConsoleHitTest, isConsoleFrontVisible } from '../three/consoleHitTest';
+import { CAMERA_DISTANCE, consoleRotation, cssProjectionMatrix, cssRearProjectionMatrix, projectionDimensions } from '../three/consoleProjection';
+import { createConsoleHitTest, isConsoleFrontVisible, isConsoleRearVisible } from '../three/consoleHitTest';
 import { bindConsoleDrag } from '../hooks/consoleDrag';
 
-export default function ConsoleModel({ hostRef, resetRef, powered, pressed, theme }) {
+export default function ConsoleModel({ hostRef, resetRef, flipRef, onFacingChange, powered, pressed, theme }) {
   const mountRef = useRef(null);
   const updateRef = useRef(null);
-  const propsRef = useRef({ powered, pressed, theme });
-  propsRef.current = { powered, pressed, theme };
+  const propsRef = useRef({ powered, pressed, theme, onFacingChange });
+  propsRef.current = { powered, pressed, theme, onFacingChange };
 
   useEffect(() => {
     const host = hostRef.current;
     const mount = mountRef.current;
     if (!host || !mount) return undefined;
     const front = host.querySelector('.handheld');
+    const rear = host.querySelector('.console-rear');
     let renderer, model, frame = null, disposed = false, failed = false;
     let drag, dragPose = { x: 0, y: 0 };
     let dimensions, lastX = NaN, lastY = NaN, visible = true;
+    // The fallback may already have been flipped before this lazy model mounts.
+    // Its first rendered (or failed) frame must synchronize the parent's view.
+    let rearVisible = null;
+    if (rear) rear.inert = true;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 50);
     camera.position.z = CAMERA_DISTANCE;
@@ -34,6 +39,13 @@ export default function ConsoleModel({ hostRef, resetRef, powered, pressed, them
     const rim = new THREE.DirectionalLight('#f5ffda', 1.2); rim.position.set(3, 5, -4);
     scene.add(ambient, key, fill, rim);
 
+    const setRearFacing = value => {
+      if (rear) rear.inert = !value;
+      if (rearVisible === value) return;
+      rearVisible = value;
+      propsRef.current.onFacingChange?.(value);
+    };
+
     const restoreFallback = () => {
       failed = true;
       if (frame !== null) cancelAnimationFrame(frame);
@@ -43,8 +55,12 @@ export default function ConsoleModel({ hostRef, resetRef, powered, pressed, them
       delete host.dataset.facing;
       delete host.dataset.rotated;
       drag?.dispose();
+      resetRef.current = null;
+      if (flipRef) flipRef.current = null;
       if (front) front.inert = false;
+      setRearFacing(false);
       host.style.removeProperty('--model-transform');
+      host.style.removeProperty('--model-rear-transform');
       host.style.removeProperty('--model-perspective');
     };
 
@@ -66,12 +82,14 @@ export default function ConsoleModel({ hostRef, resetRef, powered, pressed, them
         if (failed) return;
         // Only replace the CSS case after WebGL has rendered successfully.
         host.style.setProperty('--model-transform', cssProjectionMatrix(rotation, dimensions.pixelsPerUnit));
+        host.style.setProperty('--model-rear-transform', cssRearProjectionMatrix(rotation, dimensions.pixelsPerUnit));
         host.style.setProperty('--model-perspective', `${dimensions.perspective}px`);
         host.dataset.renderer = 'webgl';
         const frontVisible = isConsoleFrontVisible(rotation);
         host.dataset.facing = frontVisible ? 'front' : 'back';
         host.dataset.rotated = String(dragPose.x !== 0 || dragPose.y !== 0);
         if (front) front.inert = !frontVisible;
+        setRearFacing(isConsoleRearVisible(rotation));
       } catch {
         restoreFallback();
       }
@@ -125,6 +143,15 @@ export default function ConsoleModel({ hostRef, resetRef, powered, pressed, them
       schedule();
     };
     resetRef.current = resetView;
+    if (flipRef) flipRef.current = () => {
+      if (failed || disposed) return false;
+      if (rearVisible) drag.reset();
+      else drag.setPose({ x: 0, y: 180 });
+      host.style.setProperty('--tilt-x', '0deg');
+      host.style.setProperty('--tilt-y', '0deg');
+      schedule();
+      return true;
+    };
     const hover = event => {
       if (host.dataset.dragging === 'true' || event.pointerType === 'touch') return;
       host.style.setProperty('--console-cursor', canGrab(event) ? 'grab' : 'auto');
@@ -154,6 +181,7 @@ export default function ConsoleModel({ hostRef, resetRef, powered, pressed, them
       if (frame !== null) cancelAnimationFrame(frame);
       updateRef.current = null;
       resetRef.current = null;
+      if (flipRef) flipRef.current = null;
       drag.dispose();
       host.removeEventListener('pointermove', hover);
       styles.disconnect(); observer.disconnect(); intersection.disconnect();
@@ -166,10 +194,12 @@ export default function ConsoleModel({ hostRef, resetRef, powered, pressed, them
       delete host.dataset.facing;
       delete host.dataset.rotated;
       if (front) front.inert = false;
+      setRearFacing(false);
       host.style.removeProperty('--console-cursor');
       host.style.removeProperty('--model-transform'); host.style.removeProperty('--model-perspective');
+      host.style.removeProperty('--model-rear-transform');
     };
-  }, [hostRef, resetRef]);
+  }, [hostRef, resetRef, flipRef]);
 
   useEffect(() => { updateRef.current?.(); }, [powered, pressed, theme]);
   return <div className="model-viewport" ref={mountRef} aria-hidden="true" />;

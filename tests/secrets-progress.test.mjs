@@ -17,10 +17,31 @@ function memoryStorage(value = null) {
   };
 }
 
-test('secret catalog counts only the currently implemented developer room', () => {
-  assert.deepEqual(secretCatalog.map(secret => secret.id), ['developer-room']);
+test('secret catalog counts only the two implemented discoveries with separate views and hints', () => {
+  assert.deepEqual(secretCatalog.map(secret => secret.id), ['developer-room', 'backend']);
   assert.equal(new Set(secretCatalog.map(secret => secret.id)).size, secretCatalog.length);
-  assert.ok(secretCatalog.every(secret => secret.title && secret.description));
+  assert.equal(new Set(secretCatalog.map(secret => secret.view)).size, secretCatalog.length);
+  assert.ok(secretCatalog.every(secret => secret.title && secret.description && secret.hint));
+});
+
+test('adding the backend preserves existing progress and never counts a second inspection twice', () => {
+  const storage = memoryStorage('["developer-room"]');
+  const previous = readSecrets(storage);
+  assert.deepEqual(previous, ['developer-room']);
+  const both = unlockSecret(previous, 'backend');
+  assert.deepEqual(both, ['developer-room', 'backend']);
+  assert.deepEqual(previous, ['developer-room']);
+  assert.strictEqual(unlockSecret(both, 'backend'), both);
+  saveSecrets(both, storage);
+  assert.deepEqual(readSecrets(storage), both);
+});
+
+test('the rear secret can be found first and progress retains catalog order', () => {
+  const backend = unlockSecret([], 'backend');
+  assert.deepEqual(backend, ['backend']);
+  assert.deepEqual(unlockSecret(backend, 'developer-room'), ['developer-room', 'backend']);
+  const storage = memoryStorage('["backend","unknown","backend","developer-room"]');
+  assert.deepEqual(readSecrets(storage), ['developer-room', 'backend']);
 });
 
 test('secret progress safely rejects malformed or differently shaped saved data', () => {

@@ -156,8 +156,19 @@ export default function App() {
   const swipeStart = useRef(null);
   const consoleMotionRef = useRef(null);
   const consoleResetRef = useRef(null);
+  const consoleFlipRef = useRef(null);
+  const [backFacing, setBackFacing] = useState(false);
+  const resetConsole = useCallback(() => {
+    consoleResetRef.current?.();
+    setBackFacing(false);
+  }, []);
+  const flipConsole = () => {
+    codeRef.current.reset();
+    if (consoleFlipRef.current) consoleFlipRef.current();
+    else setBackFacing(value => !value);
+  };
   useConsoleTilt(consoleMotionRef);
-  const game = useByteGame({ enabled: powered && section === 'game' && !reader && !secretsView });
+  const game = useByteGame({ enabled: powered && section === 'game' && !reader && !secretsView && !backFacing });
   const { turn: turnSnake, primary: controlSnake } = game;
 
   useEffect(() => () => { clearTimeout(pressTimer.current); audioRef.current?.close(); }, []);
@@ -183,17 +194,24 @@ export default function App() {
     pressTimer.current = setTimeout(() => setPressed(''), 130);
   }, []);
   const acceptSecretInput = useCallback(token => {
-    if (!powered || reader || secretsView || section === 'game' || section === 'secret') return false;
+    if (!powered || reader || secretsView || backFacing || section === 'game' || section === 'secret') return false;
     if (!codeRef.current.push(token)) return false;
     unlock('developer-room');
     setSection('secret'); setIndex(0);
-    consoleResetRef.current?.();
+    resetConsole();
     flash('a'); beep(880);
     return true;
-  }, [powered, reader, secretsView, section, unlock, flash, beep]);
+  }, [powered, reader, secretsView, backFacing, section, unlock, flash, beep, resetConsole]);
+  const discoverBackend = () => {
+    if (!backFacing || reader || secretsView) return;
+    codeRef.current.reset();
+    unlock('backend');
+    beep(880);
+    setSecretsView('backend');
+  };
   useEffect(() => {
-    if (!powered || reader || secretsView || section === 'game' || section === 'secret') codeRef.current.reset();
-  }, [powered, reader, secretsView, section]);
+    if (!powered || reader || secretsView || backFacing || section === 'game' || section === 'secret') codeRef.current.reset();
+  }, [powered, reader, secretsView, backFacing, section]);
   useEffect(() => {
     if (section !== 'secret') return;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -249,7 +267,7 @@ export default function App() {
   };
   useEffect(() => {
     const handleKey = (event) => {
-      if (reader || secretsView || isSecretInputBlocked(event)) { codeRef.current.reset(); return; }
+      if (reader || secretsView || backFacing || event.target?.closest?.('.console-orbit-tools, .console-rear') || isSecretInputBlocked(event)) { codeRef.current.reset(); return; }
       const key = event.key.toLowerCase();
       const token = keyboardKonamiToken(event);
       const arrows = { arrowup: 'up', arrowdown: 'down', arrowleft: 'left', arrowright: 'right' };
@@ -263,7 +281,7 @@ export default function App() {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [reader, secretsView, acceptSecretInput, direction, primary, secondary, start]);
+  }, [reader, secretsView, backFacing, acceptSecretInput, direction, primary, secondary, start]);
   const openReader = (next = 'about', nextIndex = 0) => setReader({ section: next, index: nextIndex });
   const closeReader = useCallback(() => setReader(null), []);
   const selected = sections.find(item => item.id === section);
@@ -300,9 +318,9 @@ export default function App() {
 
       <section className="console-stage" aria-label={t("Interactive pocket portfolio")}>
         <p className="stage-caption eyebrow"><span /> {t("LESS SCROLL. MORE PLAY.")}</p>
-        <div className="console-motion" ref={consoleMotionRef}>
-        <Suspense fallback={null}><ConsoleModel hostRef={consoleMotionRef} resetRef={consoleResetRef} powered={powered} pressed={pressed} theme={theme} /></Suspense>
-        <div className={`handheld ${!powered ? 'powered-off' : ''}`}>
+        <div className="console-motion" ref={consoleMotionRef} data-fallback-back={backFacing}>
+        <Suspense fallback={null}><ConsoleModel hostRef={consoleMotionRef} resetRef={consoleResetRef} flipRef={consoleFlipRef} onFacingChange={setBackFacing} powered={powered} pressed={pressed} theme={theme} /></Suspense>
+        <div className={`handheld ${!powered ? 'powered-off' : ''}`} inert={backFacing ? '' : undefined}>
           <div className="case-seam" /><div className="side-ridges"><i /><i /><i /><i /><i /></div>
           <button className="power-switch" role="switch" aria-checked={powered} aria-label={t("Console power")} onClick={() => { setPowered(value => !value); beep(300); }}><span>OFF</span><i /><span>ON</span><b>◂</b></button>
           <div className="screen-bezel">
@@ -336,9 +354,19 @@ export default function App() {
           <div className="speaker" aria-hidden="true">{Array.from({length: 6}, (_, i) => <i key={i} />)}</div>
           <span className="case-serial">EST. 2026</span><div className="headphone-port" aria-hidden="true">◖◗</div>
         </div>
+        <div className="console-rear" inert={backFacing ? undefined : ''} aria-hidden={!backFacing}>
+          <div className="rear-service-plate">
+            <span className="rear-wordmark" aria-hidden="true">pocket</span>
+            <span className="rear-edition">{t('PORTFOLIO SYSTEM')} / 01</span>
+            <span className="rear-rule" aria-hidden="true" />
+            <button className="rear-engraving" type="button" onClick={discoverBackend} aria-label={t('Inspect the rear engraving')}><span aria-hidden="true">{'{ }'}</span></button>
+            <span className="rear-serial" aria-hidden="true">JJZB · B-SIDE / 01</span>
+          </div>
+          <div className="rear-battery-cover" aria-hidden="true"><span>OPEN ▾</span></div>
+        </div>
         </div>
         <div className="console-shadow" /><p className="console-caption eyebrow"><span className="tiny-led" /> {t("PLAYER 01 · READY TO EXPLORE")}</p>
-        <div className="console-orbit-tools"><span>{t('Drag the case to rotate')}</span><button type="button" onClick={() => consoleResetRef.current?.()} aria-label={t('Reset console view')}>↺ {t('Reset view')}</button></div>
+        <div className="console-orbit-tools"><span>{t('Drag the case to rotate')}</span><button type="button" onClick={flipConsole} aria-label={t(backFacing ? 'Show the front of the console' : 'Show the back of the console')}>⇄ {t(backFacing ? 'Front view' : 'Turn over')}</button><button type="button" onClick={resetConsole} aria-label={t('Reset console view')}>↺ {t('Reset view')}</button></div>
         <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
       </section>
 

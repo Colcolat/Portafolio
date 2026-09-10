@@ -281,11 +281,12 @@ h1 em{color:#6b7558;font-weight:400;line-height:1.08}
 .console-motion[data-renderer=webgl] .handheld{user-select:none;-webkit-user-select:none;backface-visibility:hidden}
 .console-motion[data-dragging=true],.console-motion[data-dragging=true] *{cursor:grabbing!important;user-select:none;-webkit-user-select:none}
 .console-motion[data-facing=back] .handheld{visibility:hidden;pointer-events:none}
-.console-orbit-tools{display:none;position:relative;z-index:3;align-items:center;justify-content:center;gap:12px;margin:20px 0 -13px;color:var(--olive);font:7px var(--mono);line-height:1.6;text-align:center}
-.console-orbit-tools button{min-height:32px;padding:5px 8px;border:1px solid var(--line);border-radius:3px;font-size:inherit;white-space:nowrap}
+.console-orbit-tools{display:flex;position:relative;z-index:3;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 12px;margin:40px 0 -13px;color:var(--olive);font:7px var(--mono);line-height:1.6;text-align:center}
+.console-orbit-tools>span{flex-basis:100%;display:none}
+.console-orbit-tools button{min-height:40px;padding:5px 10px;border:1px solid var(--line);border-radius:3px;font-size:inherit;white-space:nowrap}
 .console-orbit-tools button:hover{background:var(--preference-hover);color:var(--ink)}
 .console-motion[data-renderer=webgl][data-rotated=true]~.console-orbit-tools{display:flex}
-@media(hover:hover) and (pointer:fine){.console-motion[data-renderer=webgl]~.console-orbit-tools{display:flex}}
+@media(hover:hover) and (pointer:fine){.console-motion[data-renderer=webgl]~.console-orbit-tools>span{display:block}}
 @media(hover:none),(pointer:coarse){.console-orbit-tools>span{display:none}}
 .console-motion[data-renderer=webgl] .handheld{background:transparent;border:0;box-shadow:none;transform:var(--model-transform);transform-origin:50% 50%;animation:none;z-index:1}
 .console-motion[data-renderer=webgl] .handheld:before,.console-motion[data-renderer=webgl] .handheld:after,.console-motion[data-renderer=webgl] .case-seam,.console-motion[data-renderer=webgl] .side-ridges,.console-motion[data-renderer=webgl] .speaker,.console-motion[data-renderer=webgl] .headphone-port{display:none}
@@ -295,6 +296,24 @@ h1 em{color:#6b7558;font-weight:400;line-height:1.08}
 .console-motion[data-renderer=webgl] .action-button,.console-motion[data-renderer=webgl] .system-buttons button,.console-motion[data-renderer=webgl] .dpad-button{background:transparent;border-color:transparent;box-shadow:none;filter:none;transform:none}
 :root[data-theme=dark] .console-motion[data-renderer=webgl] .handheld{box-shadow:none}
 :root[data-theme=dark] .console-motion[data-renderer=webgl] .model-viewport{filter:drop-shadow(14px 24px 17px #03070288)}
+
+/* The service engraving lives on the rear plane, not on top of the front LCD. */
+.console-rear{position:absolute;inset:0;z-index:2;container-type:inline-size;visibility:hidden;pointer-events:none;backface-visibility:hidden;user-select:none;color-scheme:light;color:#69745c;text-shadow:0 1px 0 #f0f3e1a6;transform:rotate(5deg);transform-origin:50% 50%;border-radius:5.5% 5.5% 6% 18%}
+.console-motion[data-fallback-back=true] .console-rear{visibility:visible}
+.console-motion[data-renderer=webgl] .console-rear{transform:var(--model-rear-transform);background:none;box-shadow:none}
+.rear-service-plate{position:absolute;top:17%;left:19%;width:62%;display:flex;flex-direction:column;align-items:center;text-align:center}
+.rear-wordmark{font:600 9cqw/1 Georgia,serif;letter-spacing:-.6cqw;opacity:.75}
+.rear-edition{font:1.55cqw/1.8 var(--mono);letter-spacing:.12cqw;margin-top:2cqw}
+.rear-rule{height:1px;width:100%;background:#88937a66;box-shadow:0 1px 0 #f0f3e180;margin:4cqw 0 1.5cqw}
+.rear-engraving{pointer-events:auto;display:grid;place-items:center;min-width:48px;min-height:48px;width:17cqw;height:13cqw;border:1px solid transparent;border-radius:5px;color:#5e6a50;font:5.2cqw/1 var(--mono);text-shadow:0 1px 0 #f0f3e1;cursor:pointer}
+.rear-engraving:hover{background:#82936916;border-color:#82936944}
+.rear-engraving:focus-visible{outline:2px dashed #455a32!important;outline-offset:3px;background:#d6dec7}
+.rear-serial{font:1.45cqw/1.8 var(--mono);letter-spacing:.18cqw;margin-top:2cqw;opacity:.8}
+.rear-battery-cover{display:none}
+.console-motion:not([data-renderer=webgl])[data-fallback-back=true] .handheld{visibility:hidden;pointer-events:none}
+.console-motion:not([data-renderer=webgl]) .console-rear{background:linear-gradient(110deg,#d9dece,#c6cfb9);border:1px solid #a9b598;box-shadow:inset 2px 2px 3px #f1f4e8,inset -5px -6px 6px #a1af8f77,4px 8px 0 #aab79a,18px 25px 27px #20331833}
+.console-motion:not([data-renderer=webgl]) .rear-battery-cover{position:absolute;display:block;top:54%;left:17%;width:66%;height:36%;border:1px solid #a2af91;border-radius:5px;box-shadow:inset 0 1px 2px #eef2e4,0 2px 1px #7b8a6b55;text-align:center}
+.rear-battery-cover span{display:block;margin-top:4cqw;font:1.7cqw var(--mono)}
 
 /* Longer Spanish copy keeps the same two-line editorial silhouette. */
 :root[lang=es] .introduction{container-type:inline-size}

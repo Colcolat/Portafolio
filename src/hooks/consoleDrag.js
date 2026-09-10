@@ -127,6 +127,15 @@ export function bindConsoleDrag(element, {
     clearClickSuppression();
   }
 
+  function setPose(next = {}) {
+    if (disposed) return;
+    cancelGesture();
+    const x = Number.isFinite(next?.x) ? next.x : 0;
+    const y = Number.isFinite(next?.y) ? next.y : 0;
+    pose = { x: clamp(x, -55, 55), y: y < -180 || y > 180 ? wrapYaw(y) : y };
+    onPose({ ...pose });
+  }
+
   function onVisibilityChange() {
     if (doc.hidden) cancelGesture();
   }
@@ -163,12 +172,8 @@ export function bindConsoleDrag(element, {
   doc.addEventListener('visibilitychange', onVisibilityChange);
 
   return {
-    reset() {
-      if (disposed) return;
-      cancelGesture();
-      pose = { x: 0, y: 0 };
-      onPose({ ...pose });
-    },
+    setPose,
+    reset() { setPose(); },
     dispose() {
       if (disposed) return;
       disposed = true;

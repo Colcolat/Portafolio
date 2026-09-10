@@ -267,3 +267,58 @@ test('a zero-width or detached console never starts an unusable gesture', () => 
   assert.deepEqual(instance.dragging, []);
   instance.binding.dispose();
 });
+
+test('turning the console over synchronizes the next drag origin without a jump', () => {
+  const instance = setup();
+  instance.binding.setPose({ x: 0, y: 180 });
+  assert.deepEqual(instance.poses.at(-1), { x: 0, y: 180 });
+  instance.down();
+  instance.move({ clientX: 104, clientY: 100 });
+  assert.deepEqual(instance.poses.at(-1), { x: 0, y: 181.8 });
+  instance.up({ clientX: 104, clientY: 100 });
+  assert.ok(Math.abs(instance.poses.at(-1).y + 178.2) < 1e-10, 'release wraps the same physical rear pose');
+  instance.binding.reset();
+  instance.down();
+  instance.move({ clientX: 120 });
+  assert.deepEqual(instance.poses.at(-1), { x: 0, y: 9 }, 'reset synchronizes the following front drag too');
+  instance.binding.dispose();
+});
+
+test('setting a pose cancels capture and any pending gesture click suppression', () => {
+  for (const released of [false, true]) {
+    const instance = setup();
+    instance.down();
+    instance.move({ clientX: 300 });
+    if (released) instance.up({ clientX: 300 });
+    instance.binding.setPose({ x: 12, y: 180 });
+    assert.equal(instance.captures.size, 0);
+    assert.equal(instance.timers.size, 0);
+    assert.equal(instance.click().prevented, false, 'a keyboard flip must not leave a swallowed click');
+    assert.deepEqual(instance.dragging, [true, false]);
+    assert.deepEqual(instance.poses.at(-1), { x: 12, y: 180 });
+    const count = instance.poses.length;
+    instance.move({ clientX: 500 });
+    instance.up({ clientX: 500 });
+    assert.equal(instance.poses.length, count, 'the previous pointer cannot resume its canceled gesture');
+    instance.binding.dispose();
+  }
+});
+
+test('programmatic poses are finite, pitch-limited, yaw-normalized and inert after disposal', () => {
+  const instance = setup();
+  for (const [input, expected] of [
+    [{ x: 500, y: 765 }, { x: 55, y: 45 }],
+    [{ x: -500, y: -765 }, { x: -55, y: -45 }],
+    [{ x: NaN, y: Infinity }, { x: 0, y: 0 }],
+    [{ x: '10', y: '-90' }, { x: 0, y: 0 }],
+    [null, { x: 0, y: 0 }],
+    [undefined, { x: 0, y: 0 }],
+  ]) {
+    instance.binding.setPose(input);
+    assert.deepEqual(instance.poses.at(-1), expected);
+  }
+  instance.binding.dispose();
+  const count = instance.poses.length;
+  instance.binding.setPose({ x: 20, y: 180 });
+  assert.equal(instance.poses.length, count);
+});

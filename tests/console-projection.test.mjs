@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Euler, MathUtils, PerspectiveCamera, Vector3 } from 'three';
 import {
-  CAMERA_DISTANCE, CANVAS_PADDING, consoleRotation, cssProjectionMatrix, projectionDimensions,
+  CAMERA_DISTANCE, CANVAS_PADDING, REAR_SURFACE_Z, consoleRotation, cssProjectionMatrix, cssRearProjectionMatrix, projectionDimensions,
 } from '../src/three/consoleProjection.js';
 
 function close(actual, expected, label, tolerance = 1e-8) {
@@ -86,4 +86,34 @@ test('the CSS coordinate conversion also preserves depth, not only a planar rota
     close(actual.x, world.x * scale * dimensions.pixelsPerUnit, 'depth-correct horizontal position');
     close(actual.y, -world.y * scale * dimensions.pixelsPerUnit, 'depth-correct vertical position');
   }
+});
+
+test('the rear DOM follows the real rear surface through responsive and manually rotated views', () => {
+  const poses = [new Euler(), new Euler(0, Math.PI, 0), consoleRotation(),
+    consoleRotation(0, 0, 0, 180), consoleRotation(3, -5, -55, 115), consoleRotation(-3, 5, 55, 765)];
+  for (const width of [248, 318, 414, 500, 534.5]) {
+    const dimensions = projectionDimensions(width, width * 6.58 / 4.14);
+    const camera = new PerspectiveCamera(dimensions.fov, dimensions.aspect, 0.1, 50);
+    camera.position.z = CAMERA_DISTANCE;
+    camera.updateMatrixWorld();
+    for (const rotation of poses) {
+      const matrix = cssRearProjectionMatrix(rotation, dimensions.pixelsPerUnit);
+      for (const [x, y] of [[0, 0], [-2.07, -3.29], [2.07, 3.29], [-1.2, -1.5], [1.2, -1.5]]) {
+        // Rear-local X reverses when turning this surface away from the front.
+        const ndc = new Vector3(-x, y, REAR_SURFACE_Z).applyEuler(rotation).project(camera);
+        const screen = cssPoint(matrix, [x * dimensions.pixelsPerUnit, -y * dimensions.pixelsPerUnit, 0], dimensions.perspective);
+        close(screen.x, ndc.x * dimensions.canvasWidth / 2, 'rear horizontal registration');
+        close(screen.y, -ndc.y * dimensions.canvasHeight / 2, 'rear vertical registration');
+      }
+    }
+  }
+});
+
+test('the rear inscription remains left-to-right and is translated onto the battery cover', () => {
+  const dimensions = projectionDimensions(414, 658);
+  const matrix = cssRearProjectionMatrix(new Euler(0, Math.PI, 0), dimensions.pixelsPerUnit);
+  const left = cssPoint(matrix, [-100, 0, 0], dimensions.perspective);
+  const right = cssPoint(matrix, [100, 0, 0], dimensions.perspective);
+  assert.ok(left.x < 0 && right.x > 0, 'a fully reversed console must not mirror its rear text');
+  close(right.x, 100 * CAMERA_DISTANCE / (CAMERA_DISTANCE + REAR_SURFACE_Z), 'rear surface is nearer than the front origin');
 });

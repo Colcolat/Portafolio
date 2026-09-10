@@ -55,6 +55,20 @@ test('translation preserves English, project names, and unknown content', () => 
   assert.equal(translate('AWS Cloud Quest: Cloud Practitioner', 'es'), 'AWS Cloud Quest: Cloud Practitioner');
 });
 
+test('rear controls, hints and backend reward have complete Spanish copy', () => {
+  const keys = ['Show the front of the console', 'Show the back of the console', 'Front view', 'Turn over',
+    'Inspect the rear engraving', 'You found the backend', 'The tools on the other side of the screen.',
+    'There is more than one side to this little world.', 'The unseen part matters, too.',
+    'A closer look at the technologies and practices behind my work.', 'Backend field notes',
+    'BACKEND / FIELD NOTES', 'Backend Developer', 'Languages', 'Data', 'In practice', 'IN PRACTICE',
+    'Project technologies', 'Inspect the source', 'opens in a new tab'];
+  for (const key of keys) {
+    assert.ok(spanishTranslations[key], key);
+    assert.notEqual(translate(key, 'es'), key);
+    assert.equal(translate(key, 'en'), key);
+  }
+});
+
 test('translated templates preserve every data placeholder', () => {
   const placeholders = text => [...text.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort();
   for (const [english, spanish] of Object.entries(spanishTranslations)) {

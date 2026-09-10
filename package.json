@@ -7,7 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "lint": "eslint src/App.jsx src/main.jsx src/components/PixelArt.jsx src/components/ConsoleModel.jsx src/components/DeveloperRoom.jsx src/components/SecretsDialog.jsx src/hooks src/data src/three",
+    "lint": "eslint src/App.jsx src/main.jsx src/components/PixelArt.jsx src/components/ConsoleModel.jsx src/components/DeveloperRoom.jsx src/components/BackendRoom.jsx src/components/SecretsDialog.jsx src/hooks src/data src/three",
     "test": "node --test tests/*.test.mjs",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"

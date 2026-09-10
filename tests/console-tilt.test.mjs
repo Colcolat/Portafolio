@@ -108,6 +108,16 @@ test('the console freezes its visible angle on control entry without moving the 
   instance.cleanup();
 });
 
+test('hovering the rear engraving freezes tilt instead of moving the click target', () => {
+  const instance = setup();
+  instance.move();
+  instance.host.emit('pointermove', { clientX: 500, clientY: 400, pointerType: 'mouse',
+    target: { closest: selector => selector.split(',').map(part => part.trim()).includes('.console-rear') ? {} : null },
+  });
+  assert.equal(instance.frames.size, 0);
+  instance.cleanup();
+});
+
 test('coarse pointers and reduced-motion preferences disable motion and can change live', () => {
   for (const options of [{ fine: false }, { reduced: true }]) {
     const instance = setup(options);

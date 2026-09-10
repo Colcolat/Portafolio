@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Box3, Euler, Group, MathUtils, PerspectiveCamera, Raycaster, Vector2, Vector3 } from 'three';
 import {
-  PROTECTED_CONSOLE_TARGETS, createConsoleHitTest, isConsoleFrontVisible, isDraggableConsoleHit,
+  PROTECTED_CONSOLE_TARGETS, createConsoleHitTest, isConsoleFrontVisible, isConsoleRearVisible, isDraggableConsoleHit,
 } from '../src/three/consoleHitTest.js';
 import { createConsoleModel, disposeConsoleModel } from '../src/three/createConsoleModel.js';
 import { CAMERA_DISTANCE, consoleRotation, cssProjectionMatrix, projectionDimensions } from '../src/three/consoleProjection.js';
@@ -146,6 +146,31 @@ test('front visibility hides rear and edge-on DOM while allowing readable front 
     assert.equal(isConsoleFrontVisible(rotation), false);
   }
   assert.equal(isConsoleFrontVisible(new Euler(0, Math.acos(0.081), 0)), true, 'front remains available above the visibility threshold');
+});
+
+test('rear controls are available only on the readable rear and never overlap front controls', () => {
+  for (const rotation of [new Euler(0, Math.PI, 0), consoleRotation(0, 0, 0, 180),
+    new Euler(0, Math.acos(-0.081), 0)]) {
+    assert.equal(isConsoleRearVisible(rotation), true);
+    assert.equal(isConsoleFrontVisible(rotation), false);
+  }
+  for (const rotation of [new Euler(), consoleRotation(), new Euler(0, Math.PI / 2, 0),
+    new Euler(0, -Math.PI / 2, 0), new Euler(Math.PI / 2, 0, 0), new Euler(0, Math.acos(-0.079), 0)]) {
+    assert.equal(isConsoleRearVisible(rotation), false);
+  }
+  for (let yaw = -720; yaw <= 720; yaw += 5) {
+    const rotation = consoleRotation(0, 0, 10, yaw);
+    assert.equal(isConsoleFrontVisible(rotation) && isConsoleRearVisible(rotation), false);
+  }
+});
+
+test('the engraved rear button keeps its click instead of starting a casing drag', () => {
+  fixture(({ hitTest, eventAtLocal }) => {
+    const event = eventAtLocal(0, -1.5, -0.79);
+    assert.equal(hitTest(event), true, 'the bare battery cover can rotate');
+    event.target = { closest: selector => selector.split(', ').includes('button') ? { tagName: 'BUTTON' } : null };
+    assert.equal(hitTest(event), false, 'native button protection also applies to the rear inscription');
+  }, new Euler(0, Math.PI, 0));
 });
 
 test('manual pitch/yaw combine with pointer tilt without wrapping away complete rotations', () => {

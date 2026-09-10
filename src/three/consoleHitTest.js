@@ -31,3 +31,8 @@ export function isConsoleFrontVisible(rotation) {
   // invisible focusable buttons floating over the rear shell.
   return new Vector3(0, 0, 1).applyEuler(rotation).z > 0.08;
 }
+
+export function isConsoleRearVisible(rotation) {
+  // Use the same edge-on dead zone so neither side exposes invisible controls.
+  return new Vector3(0, 0, 1).applyEuler(rotation).z < -0.08;
+}

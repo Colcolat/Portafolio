@@ -89,7 +89,7 @@ export function bindConsoleTilt(element, host = window) {
       reset();
       return;
     }
-    if (event.target?.closest?.('.handheld, .model-viewport')) {
+    if (event.target?.closest?.('.handheld, .model-viewport, .console-rear')) {
       // Hold the visible angle on entry so controls cannot move away from a
       // click while the console would otherwise ease back to its resting pose.
       freeze();
