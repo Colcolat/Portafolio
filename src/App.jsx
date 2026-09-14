@@ -10,6 +10,8 @@ import { createKonamiMatcher, keyboardKonamiToken, isSecretInputBlocked } from '
 import { secretCatalog } from './data/secrets';
 import SecretsDialog from './components/SecretsDialog';
 import { DeveloperRoomArt } from './components/DeveloperRoom';
+import { CartridgeArt } from './components/SecretCartridge';
+import { createSecretTapMatcher } from './hooks/secretTaps';
 
 // Keep the working CSS console if the optional 3D chunk cannot be loaded.
 const ConsoleModel = lazy(() => import('./components/ConsoleModel').catch(() => ({ default: () => null })));
@@ -144,9 +146,13 @@ export default function App() {
   const [index, setIndex] = useState(0);
   const [reader, setReader] = useState(null);
   const [secretsView, setSecretsView] = useState(null);
+  const [lcdSecretId, setLcdSecretId] = useState('developer-room');
+  const lcdSecret = secretCatalog.find(secret => secret.id === lcdSecretId);
   const { foundIds, unlock } = useSecrets();
   const codeRef = useRef(null);
   if (!codeRef.current) codeRef.current = createKonamiMatcher();
+  const cartridgeTapsRef = useRef(null);
+  if (!cartridgeTapsRef.current) cartridgeTapsRef.current = createSecretTapMatcher();
   const [powered, setPowered] = useState(true);
   const { sound, setSound, language, setLanguage, theme, setTheme } = usePreferences();
   const t = useCallback((text, values) => translate(text, language, values), [language]);
@@ -197,6 +203,7 @@ export default function App() {
     if (!powered || reader || secretsView || backFacing || section === 'game' || section === 'secret') return false;
     if (!codeRef.current.push(token)) return false;
     unlock('developer-room');
+    setLcdSecretId('developer-room');
     setSection('secret'); setIndex(0);
     resetConsole();
     flash('a'); beep(880);
@@ -209,20 +216,46 @@ export default function App() {
     beep(880);
     setSecretsView('backend');
   };
+  const tapConsoleLogo = () => {
+    if (!powered || reader || secretsView || backFacing || section === 'game'
+      || (section === 'secret' && lcdSecretId === 'cartridge')) {
+      cartridgeTapsRef.current.reset();
+      return;
+    }
+    codeRef.current.reset();
+    if (!cartridgeTapsRef.current.push()) return;
+    unlock('cartridge');
+    setLcdSecretId('cartridge');
+    setSection('secret'); setIndex(0);
+    resetConsole();
+    flash('a'); beep(880);
+  };
   useEffect(() => {
     if (!powered || reader || secretsView || backFacing || section === 'game' || section === 'secret') codeRef.current.reset();
   }, [powered, reader, secretsView, backFacing, section]);
+  useEffect(() => { cartridgeTapsRef.current.reset(); }, [powered, reader, secretsView, backFacing, section]);
   useEffect(() => {
     if (section !== 'secret') return;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     consoleMotionRef.current?.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'instant' : 'smooth' });
   }, [section]);
   useEffect(() => {
-    const reset = () => codeRef.current.reset();
+    const reset = () => { codeRef.current.reset(); cartridgeTapsRef.current.reset(); };
+    const otherPointer = event => { if (!event.target?.closest?.('.console-brand-mark')) cartridgeTapsRef.current.reset(); };
+    const otherKey = event => {
+      if (!event.target?.closest?.('.console-brand-mark') || !['Enter', ' '].includes(event.key)) cartridgeTapsRef.current.reset();
+    };
     const visibility = () => { if (document.hidden) reset(); };
     window.addEventListener('blur', reset);
+    window.addEventListener('pointerdown', otherPointer, { passive: true });
+    window.addEventListener('keydown', otherKey);
     document.addEventListener('visibilitychange', visibility);
-    return () => { window.removeEventListener('blur', reset); document.removeEventListener('visibilitychange', visibility); };
+    return () => {
+      window.removeEventListener('blur', reset);
+      window.removeEventListener('pointerdown', otherPointer);
+      window.removeEventListener('keydown', otherKey);
+      document.removeEventListener('visibilitychange', visibility);
+    };
   }, []);
   const chooseSection = useCallback((next) => {
     setSection(next); setIndex(0); setPowered(true);
@@ -246,9 +279,9 @@ export default function App() {
     flash('a'); beep(660);
     if (section === 'menu') chooseSection(sections[selection].id);
     else if (section === 'game') controlSnake();
-    else if (section === 'secret') setSecretsView('room');
+    else if (section === 'secret') setSecretsView(lcdSecret.view);
     else setReader({ section, index });
-  }, [powered, reader, secretsView, acceptSecretInput, flash, beep, section, selection, chooseSection, controlSnake, index]);
+  }, [powered, reader, secretsView, acceptSecretInput, flash, beep, section, selection, chooseSection, controlSnake, index, lcdSecret.view]);
   const secondary = useCallback((registerSecret = true) => {
     if (!powered || reader || secretsView) return;
     if (registerSecret && acceptSecretInput('b')) return;
@@ -267,7 +300,8 @@ export default function App() {
   };
   useEffect(() => {
     const handleKey = (event) => {
-      if (reader || secretsView || backFacing || event.target?.closest?.('.console-orbit-tools, .console-rear') || isSecretInputBlocked(event)) { codeRef.current.reset(); return; }
+      const nativeConsoleActivation = event.target?.closest?.('.console-brand-mark, .lcd-open') && ['Enter', ' '].includes(event.key);
+      if (reader || secretsView || backFacing || nativeConsoleActivation || event.target?.closest?.('.console-orbit-tools, .console-rear') || isSecretInputBlocked(event)) { codeRef.current.reset(); return; }
       const key = event.key.toLowerCase();
       const token = keyboardKonamiToken(event);
       const arrows = { arrowup: 'up', arrowdown: 'down', arrowleft: 'left', arrowright: 'right' };
@@ -289,8 +323,8 @@ export default function App() {
   const currentProject = projects[index % projects.length];
   const currentCertificate = certificates[index % certificates.length];
   const currentSkills = skillGroups[index % skillGroups.length];
-  const screenTitle = section === 'menu' ? t('YOUR LITTLE WORLD') : section === 'secret' ? t('SECRET ROOM') : section === 'game' ? 'BYTE SNAKE' : t(selected?.label).toUpperCase();
-  const announcement = !powered ? t('Console powered off') : section === 'secret' ? t('Secret found: the developer room.') : section === 'menu' ? t('Menu: {section}', { section: t(sections[selection].label) }) : section === 'projects' ? t('Project {number}: {title}', { number: index + 1, title: currentProject.title }) : section === 'certificates' ? t('Certificate {number}: {title}', { number: index + 1, title: currentCertificate.title }) : section === 'skills' ? t(currentSkills.title) : section === 'game' ? t('Byte Snake. {status}. Score {score}', { status: t(game.status), score: game.score }) : t(selected?.label);
+  const screenTitle = section === 'menu' ? t('YOUR LITTLE WORLD') : section === 'secret' ? t(lcdSecretId === 'cartridge' ? 'BONUS CARTRIDGE' : 'SECRET ROOM') : section === 'game' ? 'BYTE SNAKE' : t(selected?.label).toUpperCase();
+  const announcement = !powered ? t('Console powered off') : section === 'secret' ? t(lcdSecretId === 'cartridge' ? 'Secret found: the hidden cartridge.' : 'Secret found: the developer room.') : section === 'menu' ? t('Menu: {section}', { section: t(sections[selection].label) }) : section === 'projects' ? t('Project {number}: {title}', { number: index + 1, title: currentProject.title }) : section === 'certificates' ? t('Certificate {number}: {title}', { number: index + 1, title: currentCertificate.title }) : section === 'skills' ? t(currentSkills.title) : section === 'game' ? t('Byte Snake. {status}. Score {score}', { status: t(game.status), score: game.score }) : t(selected?.label);
 
   return <div className="portfolio-page">
     <a className="skip-link" href="#full-portfolio" onClick={event => { event.preventDefault(); openReader(); }}>{t("Skip to full portfolio")}</a>
@@ -330,7 +364,7 @@ export default function App() {
               <div className={`lcd ${section === 'game' ? 'game-lcd' : ''}`} aria-label={t("Console screen")} onTouchStart={event => { swipeStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }} onTouchEnd={event => { if (!swipeStart.current) return; const dx = event.changedTouches[0].clientX - swipeStart.current.x; const dy = event.changedTouches[0].clientY - swipeStart.current.y; if (Math.max(Math.abs(dx), Math.abs(dy)) > 25) direction(Math.abs(dx) > Math.abs(dy) ? dx > 0 ? 'right' : 'left' : dy > 0 ? 'down' : 'up'); swipeStart.current = null; }}>
                 {powered ? <div className="screen-content" key={section}>
                   <div className="lcd-topline"><span>{screenTitle}</span><span>{section === 'menu' ? '01' : section === 'game' ? pad(game.score) : `${index + 1}/${count}`}</span></div>
-                  {section === 'secret' ? <div className="secret-lcd"><span className="secret-unlocked">✦ {t('SECRET UNLOCKED')} ✦</span><DeveloperRoomArt /><h2>{t('The developer room')}</h2><button className="lcd-open" onClick={primary}>{t('A: ENTER THE ROOM')}<span>↗</span></button></div> : <>
+                  {section === 'secret' ? <div className="secret-lcd"><span className="secret-unlocked">✦ {t('SECRET UNLOCKED')} ✦</span>{lcdSecretId === 'cartridge' ? <CartridgeArt /> : <DeveloperRoomArt />}<h2>{t(lcdSecret.title)}</h2><button className="lcd-open" onClick={primary}>{t(lcdSecretId === 'cartridge' ? 'A: LOAD CARTRIDGE' : 'A: ENTER THE ROOM')}<span>↗</span></button></div> : <>
                   {section === 'menu' ? <div className="screen-menu">{sections.map((item, i) => <button key={item.id} className={selection === i ? 'active' : ''} aria-current={selection === i ? 'true' : undefined} onMouseEnter={() => setSelection(i)} onClick={() => chooseSection(item.id)}><span>{selection === i ? '▶' : ' '}</span>{t(item.label)}<small>{pad(i + 1)}</small></button>)}</div> : section === 'game' ? <div className="game-area"><svg className="snake-board" viewBox="0 0 120 120" role="img" aria-label={t('Snake board, score {score}', { score: game.score })}><defs><pattern id="game-grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0v10" fill="none" stroke="currentColor" strokeOpacity=".08" strokeWidth=".5" /></pattern></defs><rect width="120" height="120" fill="url(#game-grid)" />{game.snake.map((cell, i) => <rect key={`${cell.x}-${cell.y}`} x={cell.x * 10 + 1} y={cell.y * 10 + 1} width="8" height="8" fill="currentColor" opacity={i === 0 ? 1 : 0.7} />)}<rect x={game.food.x * 10 + 2} y={game.food.y * 10 + 2} width="6" height="6" fill="currentColor" /></svg>{game.status !== 'playing' && <div className="game-overlay"><strong>{t({ready: 'BYTE SNAKE', paused: 'TAKE A BREATHER', over: 'ONE MORE TRY?', won: 'YOU DID IT!'}[game.status])}</strong><p>{game.status === 'ready' ? t('Collect bytes. Keep growing.') : t('SCORE {score} · BEST {best}', { score: pad(game.score), best: pad(game.highScore) })}</p><button onClick={primary}>{t(game.status === 'paused' ? 'A: RESUME' : 'A: LET’S PLAY')}</button></div>}<span className="game-best">{t('BEST {best} · A: PAUSE', { best: pad(game.highScore) })}</span></div> : <div className="lcd-main" key={`${section}-${index}`}>
                     <div className="lcd-art"><span className="pixel-spark spark-one">✦</span><PixelArt name={section === 'projects' ? projectIcons[index] : selected?.icon} /><span className="pixel-spark spark-two">+</span></div>
                     <h2>{section === 'projects' ? currentProject.title : section === 'certificates' ? currentCertificate.title : t(section === 'skills' ? currentSkills.title : section === 'about' ? 'HELLO, I’M JUAN.' : section === 'contact' ? 'LET’S BUILD SOMETHING.' : 'LITTLE MOMENTS.')}</h2>
@@ -345,7 +379,7 @@ export default function App() {
               </div>
             </div>
           </div>
-          <div className="console-brand">pocket<span>{t("PORTFOLIO SYSTEM")}</span><sup>™</sup></div>
+          <div className="console-brand"><button className="console-brand-mark" type="button" aria-label={t('Pocket logo')} onClick={tapConsoleLogo} onKeyDown={event => { if (event.repeat) event.preventDefault(); }}>pocket</button><span>{t("PORTFOLIO SYSTEM")}</span><sup>™</sup></div>
           <div className="controls-area">
             <div className="dpad-well"><div className="dpad"><span className="dpad-horizontal" /><span className="dpad-vertical" />{['up','right','down','left'].map(dir => <button key={dir} className={`dpad-button ${dir} ${pressed === dir ? 'pressed' : ''}`} aria-label={t('D-pad {direction}', { direction: t(dir) })} onClick={() => direction(dir)}><span /></button>)}<span className="dpad-center" /></div></div>
             <div className="action-buttons"><div><button className={`action-button b-button ${pressed === 'b' ? 'pressed' : ''}`} aria-label={t("B button — back to menu")} onClick={secondary} /><span>B</span></div><div><button className={`action-button a-button ${pressed === 'a' ? 'pressed' : ''}`} aria-label={t("A button — select or open")} onClick={primary} /><span>A</span></div></div>

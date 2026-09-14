@@ -69,6 +69,17 @@ test('rear controls, hints and backend reward have complete Spanish copy', () =>
   }
 });
 
+test('the cartridge discovery and memory game have Spanish copy without exposing hidden symbols', () => {
+  for (const key of ['Pocket logo', 'Secret cartridge', 'BONUS CARTRIDGE', 'A: LOAD CARTRIDGE',
+    'Pocket pairs', 'Pairs', 'Attempts', 'Memory cards', 'Shuffle & restart', 'Play again',
+    'All four pairs found. Nice memory!', 'One more game was hiding in plain sight.']) {
+    assert.ok(spanishTranslations[key], key);
+    assert.notEqual(translate(key, 'es'), key);
+  }
+  assert.equal(translate('Card {number}: face down', 'es', { number: 3 }), 'Carta 3: boca abajo');
+  assert.equal(translate('Card {number}: {symbol}, matched', 'es', { number: 3, symbol: 'Brote' }), 'Carta 3: Brote, pareja encontrada');
+});
+
 test('translated templates preserve every data placeholder', () => {
   const placeholders = text => [...text.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort();
   for (const [english, spanish] of Object.entries(spanishTranslations)) {

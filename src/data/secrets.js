@@ -14,4 +14,11 @@ export const secretCatalog = [
     description: 'The tools on the other side of the screen.',
     hint: 'There is more than one side to this little world.',
   },
+  {
+    id: 'cartridge',
+    view: 'cartridge',
+    title: 'Secret cartridge',
+    description: 'A little game tucked inside the name.',
+    hint: 'Sometimes a familiar name needs a little persistence.',
+  },
 ];

@@ -73,6 +73,14 @@ To show activity-gallery records, configure `VITE_SUPABASE_URL` and `VITE_SUPABA
 
 Two original data details are intentionally preserved: the English for Business and Entrepreneurship credential is dated `OCT, 2026`, and the AWS DevOps credential has no verification URL. The latter offers its original image for download instead.
 
+### More secrets (implementation notes / spoilers)
+
+- **Backend:** turn the console over and inspect the rear engraving to open the technical field notes. The next iteration will replace that outer button with four clickable screws and a falling cover, exposing circuits, batteries and the inner secret panel.
+- **Secret cartridge:** tap the console's **pocket** logo five times, with at most 1.2 seconds between taps. A cartridge appears on the LCD; A loads an eight-card, four-pair memory game. Touch/click flips cards; arrows navigate and Enter/Space flip with the keyboard. Matched pairs stay visible, attempts are counted, and replay shuffles the deck. Discoveries persist; individual rounds reset when leaving the game.
+- Partial logo sequences reset on other controls, a dialog, power off, rear view, game navigation, blur or hiding the tab. Holding a key and dragging the shell never count as repeated taps. Both rewards remain available through the collection after discovery.
+
+The agreed implementation queue, including the new rear-screw mechanism, is in [docs/EASTER_EGGS.md](docs/EASTER_EGGS.md).
+
 ## Acknowledgements & Credits
 
 The previous version was based on the following portfolio template. Its original license and attribution remain in this repository.

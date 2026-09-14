@@ -17,11 +17,24 @@ function memoryStorage(value = null) {
   };
 }
 
-test('secret catalog counts only the two implemented discoveries with separate views and hints', () => {
-  assert.deepEqual(secretCatalog.map(secret => secret.id), ['developer-room', 'backend']);
+test('secret catalog counts only the three implemented discoveries with separate views and hints', () => {
+  assert.deepEqual(secretCatalog.map(secret => secret.id), ['developer-room', 'backend', 'cartridge']);
   assert.equal(new Set(secretCatalog.map(secret => secret.id)).size, secretCatalog.length);
   assert.equal(new Set(secretCatalog.map(secret => secret.view)).size, secretCatalog.length);
   assert.ok(secretCatalog.every(secret => secret.title && secret.description && secret.hint));
+});
+
+test('the cartridge preserves both earlier discoveries and never duplicates progress', () => {
+  const storage = memoryStorage('["developer-room","backend"]');
+  const before = readSecrets(storage);
+  assert.deepEqual(before, ['developer-room', 'backend']);
+  const complete = unlockSecret(before, 'cartridge');
+  assert.deepEqual(complete, ['developer-room', 'backend', 'cartridge']);
+  assert.strictEqual(unlockSecret(complete, 'cartridge'), complete);
+  assert.deepEqual(before, ['developer-room', 'backend']);
+  saveSecrets(complete, storage);
+  assert.deepEqual(readSecrets(storage), complete);
+  assert.deepEqual(unlockSecret([], 'cartridge'), ['cartridge']);
 });
 
 test('adding the backend preserves existing progress and never counts a second inspection twice', () => {

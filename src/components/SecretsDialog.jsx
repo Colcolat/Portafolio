@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { secretCatalog } from '../data/secrets';
 import DeveloperRoom from './DeveloperRoom';
 import BackendRoom from './BackendRoom';
+import SecretCartridge from './SecretCartridge';
 import './SecretsDialog.css';
 
 export default function SecretsDialog({ view, foundIds, onView, onClose, t }) {
@@ -40,7 +41,7 @@ export default function SecretsDialog({ view, foundIds, onView, onClose, t }) {
     <div className="secrets-dialog-content">
       {discovery && <button className="secrets-back" type="button" onClick={() => onView('collection')}>← {t('Back to discoveries')}</button>}
       <h2 id="secrets-title" ref={titleRef} tabIndex={-1}>{t(discovery?.title || 'Secrets found')}</h2>
-      {discovery ? discovery.id === 'backend' ? <BackendRoom t={t} /> : <DeveloperRoom t={t} /> : <>
+      {discovery ? discovery.id === 'cartridge' ? <SecretCartridge t={t} /> : discovery.id === 'backend' ? <BackendRoom t={t} /> : <DeveloperRoom t={t} /> : <>
         <p className="secrets-intro">{t('A few little things, waiting to be found.')}</p>
         <div className="secrets-progress"><span>{t('{found} of {total} discovered', { found: foundIds.length, total: secretCatalog.length })}</span><progress value={foundIds.length} max={secretCatalog.length} aria-label={t('Discovery progress')} /></div>
         <ul className="secret-collection">{secretCatalog.map((secret, i) => {
