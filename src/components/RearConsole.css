@@ -1,0 +1,61 @@
+/* A quiet service compartment: olive PCB, brass traces, aged ivory plastic. */
+.console-rear{position:absolute;inset:0;z-index:2;container-type:inline-size;visibility:hidden;pointer-events:none;backface-visibility:hidden;user-select:none;-webkit-user-select:none;color-scheme:light;color:#69745c;text-shadow:0 1px 0 #f0f3e1a6;transform:rotate(5deg);transform-origin:50% 50%;border-radius:5.5% 5.5% 6% 18%}
+.console-rear[data-back-facing=true]{visibility:visible}
+.console-motion[data-renderer=webgl] .console-rear{transform:var(--model-rear-transform);background:none;box-shadow:none}
+.rear-cover{position:absolute;inset:0;border-radius:inherit;transform-origin:40% 88%;will-change:auto}
+.rear-service-plate{position:absolute;top:17%;left:19%;width:62%;display:flex;flex-direction:column;align-items:center;text-align:center}
+.rear-wordmark{font:600 9cqw/1 Georgia,serif;letter-spacing:-.6cqw;opacity:.75}
+.rear-edition{font:1.55cqw/1.8 var(--mono);letter-spacing:.12cqw;margin-top:2cqw}
+.rear-rule{height:1px;width:100%;background:#88937a66;box-shadow:0 1px 0 #f0f3e180;margin:4cqw 0 1.5cqw}
+.rear-serial{font:1.45cqw/1.8 var(--mono);letter-spacing:.18cqw;margin-top:2cqw;opacity:.8}
+.rear-battery-cover{display:none}
+.rear-battery-cover>span{display:block;margin:4cqw 0 13cqw;font:1.7cqw var(--mono)}
+.rear-battery-cover>i{display:block;width:38%;height:1px;margin:1.3cqw auto;background:#a6b196;box-shadow:0 1px 0 #e8eedc}
+.rear-screw{position:absolute;z-index:3;display:grid;place-items:center;width:11cqw;height:11cqw;min-width:44px;min-height:44px;transform:translate(-50%,-50%);border-radius:50%;pointer-events:auto;touch-action:manipulation}
+.rear-screw-head{display:grid;place-items:center;width:4.1cqw;height:4.1cqw;min-width:12px;min-height:12px;border-radius:50%;background:linear-gradient(135deg,#c8cbbd,#6d7867 55%,#b8beab);border:1px solid #596551;box-shadow:0 .25cqw .4cqw #35402988,inset 0 .25cqw .3cqw #eef1d7;transition:transform .25s,opacity .2s}
+.rear-screw-head i{display:block;width:65%;height:1px;position:relative;transform:rotate(24deg);background:#43503b;box-shadow:0 1px 0 #d5dbc399}
+.rear-screw-head i:after{position:absolute;content:'';inset:0;background:inherit;box-shadow:inherit;transform:rotate(90deg)}
+.rear-screw:hover:not([aria-disabled=true]) .rear-screw-head{transform:rotate(25deg);filter:brightness(1.15)}
+.rear-screw:focus-visible{outline:2px dashed #455a32!important;outline-offset:0;background:#d6dec755}
+.rear-screw[data-removed=true]{cursor:default}
+.rear-screw[data-removed=true] .rear-screw-head{transform:rotate(-100deg) scale(.58);opacity:.32;box-shadow:inset 0 1px 3px #111b0c;background:#34442c;border-color:#657258}
+.rear-screw[data-removed=true] .rear-screw-head i{opacity:0}
+.console-rear[data-cover-phase=falling] .rear-screw{visibility:hidden}
+.console-rear[data-cover-phase=falling] .rear-cover{animation:rear-cover-drop .85s cubic-bezier(.35,.02,.77,.61) forwards}
+.console-motion[data-renderer=webgl] .rear-cover{background:none;border:0;box-shadow:none}
+.console-motion[data-renderer=webgl] .rear-screw-head{opacity:0}
+.console-motion[data-renderer=webgl] .rear-screw:hover:not([aria-disabled=true]) .rear-screw-head,.console-motion[data-renderer=webgl] .rear-screw:focus-visible .rear-screw-head{opacity:.45}
+.console-motion[data-renderer=webgl] .console-rear[data-cover-phase=falling] .rear-cover{animation:rear-cover-label-fade .16s linear forwards}
+.rear-internals{position:absolute;inset:3.6% 4.7% 4.2%;overflow:hidden;border-radius:3% 3% 4% 17%;background:#394b34;border:1px solid #778966;box-shadow:inset 0 0 0 1.5cqw #87957b,inset 0 0 2cqw 2cqw #14211080;display:none}
+.rear-circuit-board{position:absolute;top:4%;left:5%;width:90%;height:55%;border-radius:2px;background:linear-gradient(125deg,#63774b,#425d36);border:1px solid #a0a87966;box-shadow:inset 0 0 0 .9cqw #8a956443;text-shadow:none}
+.rear-circuit-traces{position:absolute;inset:0;width:100%;height:100%;color:#b0aa62;opacity:.7}
+.rear-chip{position:absolute;width:13%;height:12%;background:linear-gradient(135deg,#353c2d,#222d20);border:1px solid #7c846057;box-shadow:.5cqw .6cqw .3cqw #23351d88;display:flex;flex-direction:column;justify-content:space-evenly}
+.rear-chip--left{left:12%;top:36%;transform:rotate(90deg)}
+.rear-chip--right{right:12%;top:56%}
+.rear-chip i{display:block;height:1px;margin-inline:-1.5cqw;background:#c1b47d}
+.rear-chip i:after{content:'';position:absolute;inset:1px;background:#293522}
+.rear-capacitor{position:absolute;top:16%;left:78%;width:4cqw;height:4cqw;border-radius:50%;background:linear-gradient(135deg,#bbbda8,#505a43);border:2px solid #384830;box-shadow:.5cqw .6cqw .3cqw #1d3019aa}
+.rear-capacitor--two{left:14%;top:73%;width:3cqw;height:3cqw}
+.rear-board-number{position:absolute;right:7%;bottom:5%;font:1.5cqw var(--mono);letter-spacing:.1cqw;color:#c5c598aa}
+.rear-battery-tray{position:absolute;left:13%;right:13%;top:62%;height:30%;border-radius:4px;background:#2a3924;box-shadow:inset 0 1cqw 1cqw #15200f,inset 0 0 0 1px #99a47f;display:grid;grid-template-columns:1fr 1fr;gap:3cqw;padding:3cqw 5cqw}
+.rear-cell{position:relative;border-radius:2.4cqw;background:linear-gradient(90deg,#65704c,#adb38a 24%,#bcc29b 44%,#8e976c 75%,#53623e);box-shadow:inset 0 4.5cqw 0 #a2905d,inset 0 5.1cqw 0 #c2b680,inset 0 -2cqw 0 #a8ad98,1cqw .3cqw 1.5cqw #101b0a;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:1.1cqw 0;color:#34422a;text-shadow:0 1px 0 #ced2b277}
+.rear-cell:before{content:'';position:absolute;top:-1.2cqw;left:35%;width:30%;height:1.2cqw;border-radius:.5cqw .5cqw 0 0;background:#c1c4ae;box-shadow:0 -.25cqw .5cqw #151e0d}
+.rear-cell--2{transform:rotate(180deg)}
+.rear-cell-polarity{font:3cqw var(--mono);line-height:1}
+.rear-cell-label{font:italic 5cqw/1 Georgia,serif;writing-mode:vertical-rl;letter-spacing:-.2cqw;display:flex;align-items:center;gap:2cqw}
+.rear-cell-label small{font:1.4cqw var(--mono);letter-spacing:.1cqw}
+.rear-backend-panel{position:absolute;left:50%;top:34.0426%;z-index:4;transform:translate(-50%,-50%);width:24cqw;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.6cqw;padding:3cqw 1cqw;background:linear-gradient(145deg,#303d2a,#1c2a1b);border:1px solid #c4b67c;box-shadow:0 0 0 .8cqw #26371ecc,0 1cqw 1.2cqw #1a2918aa;pointer-events:auto;color:#c2c79c;text-shadow:none;touch-action:manipulation}
+.rear-backend-panel[hidden]{display:none}
+.rear-panel-code{font:6cqw/1 var(--mono);color:#d4d2a6}
+.rear-panel-name{font:1.85cqw/1 var(--mono);letter-spacing:.25cqw}
+.rear-panel-access{font:1.1cqw/1.4 var(--mono);letter-spacing:.05cqw;color:#929d73}
+.rear-backend-panel:hover{background:#3c5030;box-shadow:0 0 0 .8cqw #26371ecc,0 1cqw 1.2cqw #1a2918aa,inset 0 0 3cqw #90a05c22;color:#e4e5b6}
+.rear-backend-panel:focus-visible{outline:2px dashed #e6dfab!important;outline-offset:5px;background:#3c5030}
+.console-motion:not([data-renderer=webgl])[data-fallback-back=true] .handheld{visibility:hidden;pointer-events:none}
+.console-motion:not([data-renderer=webgl]) .console-rear{background:#94a284;border:1px solid #a9b598;box-shadow:inset 2px 2px 3px #f1f4e8,inset -5px -6px 6px #a1af8f77,4px 8px 0 #aab79a,18px 25px 27px #20331833}
+.console-motion:not([data-renderer=webgl]) .rear-internals{display:block}
+.console-motion:not([data-renderer=webgl]) .rear-cover{background:linear-gradient(110deg,#d9dece,#c6cfb9);border:1px solid #a9b598;box-shadow:inset 2px 2px 3px #f1f4e8,inset -5px -6px 6px #a1af8f77}
+.console-motion:not([data-renderer=webgl]) .rear-battery-cover{position:absolute;display:block;top:54%;left:17%;width:66%;height:36%;border:1px solid #a2af91;border-radius:5px;box-shadow:inset 0 1px 2px #eef2e4,0 2px 1px #7b8a6b55;text-align:center}
+@keyframes rear-cover-drop{0%{transform:translate(0,0) rotate(0);opacity:1}18%{transform:translate(0,2%) rotate(-3deg);opacity:1}70%{opacity:1}100%{transform:translate(7%,62%) rotate(17deg);opacity:0}}
+@keyframes rear-cover-label-fade{to{opacity:0}}
+@media(prefers-reduced-motion:reduce){.console-rear[data-cover-phase=falling] .rear-cover{animation:none;visibility:hidden}.rear-screw-head{transition:none}.rear-screw:hover:not([aria-disabled=true]) .rear-screw-head{transform:none}}

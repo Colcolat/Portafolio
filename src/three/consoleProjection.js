@@ -28,11 +28,11 @@ export function cssProjectionMatrix(rotation, pixelsPerUnit) {
   return cssMatrix(new Matrix4().makeRotationFromEuler(rotation), pixelsPerUnit);
 }
 
-export function cssRearProjectionMatrix(rotation, pixelsPerUnit) {
+export function cssRearProjectionMatrix(rotation, pixelsPerUnit, surfaceZ = REAR_SURFACE_Z) {
   // Turn the rear DOM around its own normal before moving it onto the actual
   // battery cover. Its text stays readable instead of mirroring the front.
   const matrix = new Matrix4().makeRotationFromEuler(rotation)
-    .multiply(new Matrix4().makeTranslation(0, 0, REAR_SURFACE_Z))
+    .multiply(new Matrix4().makeTranslation(0, 0, surfaceZ))
     .multiply(new Matrix4().makeRotationY(Math.PI));
   return cssMatrix(matrix, pixelsPerUnit);
 }

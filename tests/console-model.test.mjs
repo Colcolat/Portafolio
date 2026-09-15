@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Box3, Vector3 } from 'three';
+import { Box3, Raycaster, Vector3 } from 'three';
 import {
   CONSOLE_WIDTH, CONSOLE_HEIGHT, createConsoleModel, updateConsoleModel, disposeConsoleModel,
 } from '../src/three/createConsoleModel.js';
@@ -119,6 +119,95 @@ test('power state synchronizes the LED, LCD backing and physical switch and can 
     assert.equal(lcd.material.color.getHexString(), '9faf70');
     close(switchGroup.position.x, -1.38, 'switch on position');
     close(model.userData.controls.a.position.z, model.userData.controls.a.userData.restZ, 'default update releases the control');
+  });
+});
+
+test('four independently removable rear screws keep the cover details in one physical assembly', () => {
+  withModel(model => {
+    const { rearCover, rearScrews, interior, batteries } = model.userData;
+    assert.equal(rearCover.isGroup, true);
+    assert.equal(rearScrews.length, 4);
+    assert.equal(batteries.length, 2);
+    assert.equal(interior.visible, false);
+    assert.equal(model.getObjectByName('Rear shell').parent, rearCover);
+    assert.equal(model.getObjectByName('Rear battery cover').parent, rearCover);
+    assert.equal(model.getObjectByName('Fixed rear rim').parent, model);
+    assert.equal(model.getObjectByName('Fixed rear rim').geometry.parameters.shapes.holes.length, 1, 'fixed sidewalls are a real open rim');
+    assert.equal(model.getObjectByName('Internal circuit board').parent, interior);
+    [[-1.72, 2.86], [1.72, 2.86], [-1.72, -2.84], [1.57, -2.72]].forEach(([x, y], index) => {
+      const screw = rearScrews[index];
+      close(screw.position.x, x, 'screw anchor x'); close(screw.position.y, y, 'screw anchor y');
+      assert.equal(screw.userData.screwId, index);
+      assert.equal(screw.userData.dragBlocked, true);
+      assert.equal(screw.getObjectByName('Rear screw').userData.dragBlocked, true);
+    });
+    updateConsoleModel(model, { screwsRemoved: [0, 2, 2, 99] });
+    assert.deepEqual(rearScrews.map(screw => screw.visible), [false, true, false, true]);
+    assert.equal(rearCover.visible, true, 'removing screws alone does not animate the cover');
+    updateConsoleModel(model);
+    assert.deepEqual(rearScrews.map(screw => screw.visible), [true, true, true, true]);
+  });
+});
+
+test('the rear panel lifts and falls with deterministic reversible transforms', () => {
+  withModel(model => {
+    const { rearCover, interior, rearScrews } = model.userData;
+    const rim = model.getObjectByName('Fixed rear rim');
+    const fixedPosition = rim.position.clone();
+    const stateAt = progress => {
+      updateConsoleModel(model, { coverProgress: progress, screwsRemoved: [0, 1, 2, 3] });
+      return [...rearCover.position.toArray(), ...rearCover.rotation.toArray()];
+    };
+    stateAt(0.12);
+    close(rearCover.position.y, 0, 'panel lifts before dropping');
+    assert.ok(rearCover.position.z < -0.2);
+    assert.equal(interior.visible, true);
+    const halfway = stateAt(0.5);
+    assert.ok(rearCover.position.y < -1);
+    for (let repeat = 0; repeat < 5; repeat += 1) assert.deepEqual(stateAt(0.5), halfway, 'travel never accumulates');
+    assert.ok(rim.position.equals(fixedPosition), 'outer sidewalls remain fixed');
+    stateAt(1);
+    assert.equal(rearCover.visible, false);
+    assert.equal(interior.visible, true);
+    assert.ok(rearScrews.every(screw => !screw.visible));
+    updateConsoleModel(model);
+    assert.ok(rearCover.position.length() === 0);
+    close(rearCover.rotation.x, 0, 'restored pitch'); close(rearCover.rotation.y, 0, 'restored yaw'); close(rearCover.rotation.z, 0, 'restored roll');
+    assert.equal(rearCover.visible, true);
+    assert.equal(interior.visible, false);
+    assert.ok(rearScrews.every(screw => screw.visible));
+    for (const progress of [-1, NaN, Infinity, '1']) {
+      stateAt(progress);
+      assert.equal(rearCover.visible, true);
+      assert.ok(rearCover.position.length() === 0, 'invalid and negative progress safely uses the closed pose');
+    }
+    stateAt(5);
+    assert.equal(rearCover.visible, false, 'progress beyond one clamps to fully open');
+  });
+});
+
+test('hidden cover and screws stop raycasting and reset without invisible hit areas', () => {
+  withModel(model => {
+    const { rearCover, rearScrews, interior } = model.userData;
+    const ray = new Raycaster(new Vector3(-1.72, 2.86, -4), new Vector3(0, 0, 1));
+    const hits = () => { model.updateMatrixWorld(true); return ray.intersectObject(model, true); };
+    const descendants = assembly => { const result = new Set(); assembly.traverse(object => result.add(object)); return result; };
+    const coverMeshes = descendants(rearCover), internalMeshes = descendants(interior), screwMeshes = descendants(rearScrews[0]);
+    assert.ok(hits().some(hit => screwMeshes.has(hit.object)), 'closed screw is a physical hit target');
+    assert.ok(hits().every(hit => !internalMeshes.has(hit.object)), 'hidden internals do not raycast');
+    updateConsoleModel(model, { screwsRemoved: [0] });
+    assert.ok(hits().every(hit => !screwMeshes.has(hit.object)), 'removed screw leaves no ghost hit target');
+    updateConsoleModel(model, { coverProgress: 1, screwsRemoved: [0, 1, 2, 3] });
+    assert.ok(hits().every(hit => !coverMeshes.has(hit.object)), 'fully dropped assembly is excluded from rays');
+    updateConsoleModel(model, { screwsRemoved: [0] });
+    assert.ok(hits().every(hit => !screwMeshes.has(hit.object)), 'restoring the parent cannot revive a still-hidden screw raycast');
+    updateConsoleModel(model);
+    assert.ok(hits().some(hit => screwMeshes.has(hit.object)), 'reinstalled screw resumes physical hit testing');
+    ray.ray.origin.set(0, 1.05, -4);
+    updateConsoleModel(model, { coverProgress: 1 });
+    const serviceHit = hits()[0];
+    assert.equal(serviceHit.object.name, 'Internal circuit board');
+    assert.ok(serviceHit.point.z > -0.54, 'the service panel plane remains in front of internal geometry from the rear');
   });
 });
 

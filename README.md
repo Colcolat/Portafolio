@@ -75,11 +75,11 @@ Two original data details are intentionally preserved: the English for Business 
 
 ### More secrets (implementation notes / spoilers)
 
-- **Backend:** turn the console over and inspect the rear engraving to open the technical field notes. The next iteration will replace that outer button with four clickable screws and a falling cover, exposing circuits, batteries and the inner secret panel.
+- **Backend:** turn the console over and remove its four distinct rear screws in any order, without a timer. The full cover lifts and falls, revealing a modeled circuit board, two AA batteries and an internal **{ }** panel that opens the technical field notes. **Restore cover** reassembles it without erasing discoveries; **Reset view** returns to the front. Mouse/touch and native keyboard activation work independently of case dragging. Reduced-motion preferences skip the fall, and the CSS fallback retains the complete puzzle. Cover state resets on reload; the existing `backend` discovery remains saved.
 - **Secret cartridge:** tap the console's **pocket** logo five times, with at most 1.2 seconds between taps. A cartridge appears on the LCD; A loads an eight-card, four-pair memory game. Touch/click flips cards; arrows navigate and Enter/Space flip with the keyboard. Matched pairs stay visible, attempts are counted, and replay shuffles the deck. Discoveries persist; individual rounds reset when leaving the game.
 - Partial logo sequences reset on other controls, a dialog, power off, rear view, game navigation, blur or hiding the tab. Holding a key and dragging the shell never count as repeated taps. Both rewards remain available through the collection after discovery.
 
-The agreed implementation queue, including the new rear-screw mechanism, is in [docs/EASTER_EGGS.md](docs/EASTER_EGGS.md).
+The agreed implementation queue, including the favourite-game memory cards and three upcoming secrets, is in [docs/EASTER_EGGS.md](docs/EASTER_EGGS.md).
 
 ## Acknowledgements & Credits
 

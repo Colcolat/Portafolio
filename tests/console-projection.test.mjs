@@ -117,3 +117,19 @@ test('the rear inscription remains left-to-right and is translated onto the batt
   assert.ok(left.x < 0 && right.x > 0, 'a fully reversed console must not mirror its rear text');
   close(right.x, 100 * CAMERA_DISTANCE / (CAMERA_DISTANCE + REAR_SURFACE_Z), 'rear surface is nearer than the front origin');
 });
+
+test('the exposed backend panel follows its recessed plane instead of floating at cover depth', () => {
+  for (const width of [248, 414, 534.5]) {
+    const dimensions = projectionDimensions(width, width * 6.58 / 4.14);
+    for (const rotation of [consoleRotation(0, 0, 0, 180), consoleRotation(2, -3, 28, 135)]) {
+      const matrix = cssRearProjectionMatrix(rotation, dimensions.pixelsPerUnit, -0.54);
+      for (const [x, y] of [[0, 1.05], [-0.4, 0.8], [0.4, 1.3]]) {
+        const world = new Vector3(-x, y, -0.54).applyEuler(rotation);
+        const scale = CAMERA_DISTANCE / (CAMERA_DISTANCE - world.z);
+        const actual = cssPoint(matrix, [x * dimensions.pixelsPerUnit, -y * dimensions.pixelsPerUnit, 0], dimensions.perspective);
+        close(actual.x, world.x * scale * dimensions.pixelsPerUnit, 'inner panel horizontal registration');
+        close(actual.y, -world.y * scale * dimensions.pixelsPerUnit, 'inner panel vertical registration');
+      }
+    }
+  }
+});

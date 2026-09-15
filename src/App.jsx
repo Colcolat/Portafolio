@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { profile, projects, certificates, skillGroups } from './data/portfolio';
 import PixelArt from './components/PixelArt';
 import useByteGame from './hooks/useByteGame';
@@ -12,6 +12,8 @@ import SecretsDialog from './components/SecretsDialog';
 import { DeveloperRoomArt } from './components/DeveloperRoom';
 import { CartridgeArt } from './components/SecretCartridge';
 import { createSecretTapMatcher } from './hooks/secretTaps';
+import RearConsole from './components/RearConsole';
+import { COVER_FALL_DURATION, createRearCover, rearCoverReducer } from './hooks/rearCover';
 
 // Keep the working CSS console if the optional 3D chunk cannot be loaded.
 const ConsoleModel = lazy(() => import('./components/ConsoleModel').catch(() => ({ default: () => null })));
@@ -164,6 +166,16 @@ export default function App() {
   const consoleResetRef = useRef(null);
   const consoleFlipRef = useRef(null);
   const [backFacing, setBackFacing] = useState(false);
+  const [rearCover, dispatchRearCover] = useReducer(rearCoverReducer, undefined, createRearCover);
+  useEffect(() => {
+    if (rearCover.phase !== 'falling') return undefined;
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const settle = () => dispatchRearCover({ type: 'settled' });
+    const timer = setTimeout(settle, motion.matches ? 0 : COVER_FALL_DURATION);
+    const preferenceChange = () => { if (motion.matches) settle(); };
+    motion.addEventListener('change', preferenceChange);
+    return () => { clearTimeout(timer); motion.removeEventListener('change', preferenceChange); };
+  }, [rearCover.phase]);
   const resetConsole = useCallback(() => {
     consoleResetRef.current?.();
     setBackFacing(false);
@@ -210,11 +222,16 @@ export default function App() {
     return true;
   }, [powered, reader, secretsView, backFacing, section, unlock, flash, beep, resetConsole]);
   const discoverBackend = () => {
-    if (!backFacing || reader || secretsView) return;
+    if (!backFacing || rearCover.phase !== 'open' || reader || secretsView) return;
     codeRef.current.reset();
     unlock('backend');
     beep(880);
     setSecretsView('backend');
+  };
+  const unscrewRear = id => {
+    if (!backFacing || reader || secretsView || rearCover.phase !== 'closed' || rearCover.removedScrews.includes(id)) return;
+    dispatchRearCover({ type: 'unscrew', id });
+    beep(220 + rearCover.removedScrews.length * 65);
   };
   const tapConsoleLogo = () => {
     if (!powered || reader || secretsView || backFacing || section === 'game'
@@ -353,7 +370,7 @@ export default function App() {
       <section className="console-stage" aria-label={t("Interactive pocket portfolio")}>
         <p className="stage-caption eyebrow"><span /> {t("LESS SCROLL. MORE PLAY.")}</p>
         <div className="console-motion" ref={consoleMotionRef} data-fallback-back={backFacing}>
-        <Suspense fallback={null}><ConsoleModel hostRef={consoleMotionRef} resetRef={consoleResetRef} flipRef={consoleFlipRef} onFacingChange={setBackFacing} powered={powered} pressed={pressed} theme={theme} /></Suspense>
+        <Suspense fallback={null}><ConsoleModel hostRef={consoleMotionRef} resetRef={consoleResetRef} flipRef={consoleFlipRef} onFacingChange={setBackFacing} powered={powered} pressed={pressed} theme={theme} coverPhase={rearCover.phase} screwsRemoved={rearCover.removedScrews} /></Suspense>
         <div className={`handheld ${!powered ? 'powered-off' : ''}`} inert={backFacing ? '' : undefined}>
           <div className="case-seam" /><div className="side-ridges"><i /><i /><i /><i /><i /></div>
           <button className="power-switch" role="switch" aria-checked={powered} aria-label={t("Console power")} onClick={() => { setPowered(value => !value); beep(300); }}><span>OFF</span><i /><span>ON</span><b>◂</b></button>
@@ -388,19 +405,11 @@ export default function App() {
           <div className="speaker" aria-hidden="true">{Array.from({length: 6}, (_, i) => <i key={i} />)}</div>
           <span className="case-serial">EST. 2026</span><div className="headphone-port" aria-hidden="true">◖◗</div>
         </div>
-        <div className="console-rear" inert={backFacing ? undefined : ''} aria-hidden={!backFacing}>
-          <div className="rear-service-plate">
-            <span className="rear-wordmark" aria-hidden="true">pocket</span>
-            <span className="rear-edition">{t('PORTFOLIO SYSTEM')} / 01</span>
-            <span className="rear-rule" aria-hidden="true" />
-            <button className="rear-engraving" type="button" onClick={discoverBackend} aria-label={t('Inspect the rear engraving')}><span aria-hidden="true">{'{ }'}</span></button>
-            <span className="rear-serial" aria-hidden="true">JJZB · B-SIDE / 01</span>
-          </div>
-          <div className="rear-battery-cover" aria-hidden="true"><span>OPEN ▾</span></div>
-        </div>
+        <RearConsole t={t} backFacing={backFacing} removedScrews={rearCover.removedScrews} coverPhase={rearCover.phase} onScrew={unscrewRear} onDiscover={discoverBackend} />
         </div>
         <div className="console-shadow" /><p className="console-caption eyebrow"><span className="tiny-led" /> {t("PLAYER 01 · READY TO EXPLORE")}</p>
-        <div className="console-orbit-tools"><span>{t('Drag the case to rotate')}</span><button type="button" onClick={flipConsole} aria-label={t(backFacing ? 'Show the front of the console' : 'Show the back of the console')}>⇄ {t(backFacing ? 'Front view' : 'Turn over')}</button><button type="button" onClick={resetConsole} aria-label={t('Reset console view')}>↺ {t('Reset view')}</button></div>
+        <div className="console-orbit-tools"><span>{t('Drag the case to rotate')}</span><button type="button" onClick={flipConsole} aria-label={t(backFacing ? 'Show the front of the console' : 'Show the back of the console')}>⇄ {t(backFacing ? 'Front view' : 'Turn over')}</button><button type="button" onClick={resetConsole} aria-label={t('Reset console view')}>↺ {t('Reset view')}</button>{(backFacing || rearCover.removedScrews.length > 0) && <button type="button" aria-disabled={rearCover.removedScrews.length === 0} onClick={() => dispatchRearCover({ type: 'restore' })}>{t('Restore cover')}</button>}</div>
+        <p className="sr-only" role="status">{rearCover.phase === 'open' ? t('Cover removed. An inner panel is now accessible.') : rearCover.phase === 'falling' ? t('All four screws removed. The cover is falling.') : rearCover.removedScrews.length > 0 ? t('{count} of 4 screws removed.', { count: rearCover.removedScrews.length }) : ''}</p>
         <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
       </section>
 

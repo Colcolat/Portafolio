@@ -4,7 +4,7 @@ import { Box3, Euler, Group, MathUtils, PerspectiveCamera, Raycaster, Vector2, V
 import {
   PROTECTED_CONSOLE_TARGETS, createConsoleHitTest, isConsoleFrontVisible, isConsoleRearVisible, isDraggableConsoleHit,
 } from '../src/three/consoleHitTest.js';
-import { createConsoleModel, disposeConsoleModel } from '../src/three/createConsoleModel.js';
+import { createConsoleModel, updateConsoleModel, disposeConsoleModel } from '../src/three/createConsoleModel.js';
 import { CAMERA_DISTANCE, consoleRotation, cssProjectionMatrix, projectionDimensions } from '../src/three/consoleProjection.js';
 
 function close(actual, expected, label) {
@@ -137,6 +137,30 @@ test('the rear shell and rear battery cover remain draggable after a half-turn',
   }, new Euler(0, Math.PI, 0));
 });
 
+test('all four rear screws protect their actual geometry from casing drags', () => {
+  for (const rotation of [new Euler(0, Math.PI, 0), consoleRotation(0, 0, 0, 180)]) {
+    fixture(({ hitTest, hitAt, eventAtLocal }) => {
+      for (const [x, y] of [[-1.72, 2.86], [1.72, 2.86], [-1.72, -2.84], [1.57, -2.72]]) {
+        const event = eventAtLocal(x, y, -0.76);
+        assert.match(hitAt(event).object.name, /Rear screw|Screw slot/);
+        assert.equal(hitTest(event), false);
+      }
+    }, rotation);
+  }
+});
+
+test('the open interior remains rotatable while its native service panel retains clicks', () => {
+  fixture(({ model, hitTest, hitAt, eventAtLocal }) => {
+    updateConsoleModel(model, { coverProgress: 1, screwsRemoved: [0, 1, 2, 3] });
+    const board = eventAtLocal(0, 0, -0.54);
+    assert.equal(hitAt(board).object.name, 'Internal circuit board');
+    assert.equal(hitTest(board), true);
+    const panel = eventAtLocal(0, 1.05, -0.54);
+    panel.target = { closest: () => ({ tagName: 'BUTTON' }) };
+    assert.equal(hitTest(panel), false);
+  }, new Euler(0, Math.PI, 0));
+});
+
 test('front visibility hides rear and edge-on DOM while allowing readable front views', () => {
   for (const rotation of [new Euler(), consoleRotation(), consoleRotation(0, 0, 20, 30), new Euler(0, 2 * Math.PI, 0)]) {
     assert.equal(isConsoleFrontVisible(rotation), true);
@@ -164,7 +188,7 @@ test('rear controls are available only on the readable rear and never overlap fr
   }
 });
 
-test('the engraved rear button keeps its click instead of starting a casing drag', () => {
+test('rear native controls keep their clicks instead of starting a casing drag', () => {
   fixture(({ hitTest, eventAtLocal }) => {
     const event = eventAtLocal(0, -1.5, -0.79);
     assert.equal(hitTest(event), true, 'the bare battery cover can rotate');

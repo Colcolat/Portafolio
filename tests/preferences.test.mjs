@@ -57,7 +57,9 @@ test('translation preserves English, project names, and unknown content', () => 
 
 test('rear controls, hints and backend reward have complete Spanish copy', () => {
   const keys = ['Show the front of the console', 'Show the back of the console', 'Front view', 'Turn over',
-    'Inspect the rear engraving', 'You found the backend', 'The tools on the other side of the screen.',
+    'Inspect the backend panel', 'Remove rear screw {number}', 'Rear screw {number} removed', 'Restore cover',
+    'Cover removed. An inner panel is now accessible.', 'All four screws removed. The cover is falling.',
+    '{count} of 4 screws removed.', 'You found the backend', 'The tools on the other side of the screen.',
     'There is more than one side to this little world.', 'The unseen part matters, too.',
     'A closer look at the technologies and practices behind my work.', 'Backend field notes',
     'BACKEND / FIELD NOTES', 'Backend Developer', 'Languages', 'Data', 'In practice', 'IN PRACTICE',

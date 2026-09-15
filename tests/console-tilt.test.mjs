@@ -108,7 +108,7 @@ test('the console freezes its visible angle on control entry without moving the 
   instance.cleanup();
 });
 
-test('hovering the rear engraving freezes tilt instead of moving the click target', () => {
+test('hovering rear screws or the internal panel freezes tilt instead of moving the click target', () => {
   const instance = setup();
   instance.move();
   instance.host.emit('pointermove', { clientX: 500, clientY: 400, pointerType: 'mouse',

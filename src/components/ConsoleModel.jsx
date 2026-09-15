@@ -4,12 +4,13 @@ import { createConsoleModel, updateConsoleModel, disposeConsoleModel } from '../
 import { CAMERA_DISTANCE, consoleRotation, cssProjectionMatrix, cssRearProjectionMatrix, projectionDimensions } from '../three/consoleProjection';
 import { createConsoleHitTest, isConsoleFrontVisible, isConsoleRearVisible } from '../three/consoleHitTest';
 import { bindConsoleDrag } from '../hooks/consoleDrag';
+import { COVER_FALL_DURATION } from '../hooks/rearCover';
 
-export default function ConsoleModel({ hostRef, resetRef, flipRef, onFacingChange, powered, pressed, theme }) {
+export default function ConsoleModel({ hostRef, resetRef, flipRef, onFacingChange, powered, pressed, theme, coverPhase = 'closed', screwsRemoved = [] }) {
   const mountRef = useRef(null);
   const updateRef = useRef(null);
-  const propsRef = useRef({ powered, pressed, theme, onFacingChange });
-  propsRef.current = { powered, pressed, theme, onFacingChange };
+  const propsRef = useRef({ powered, pressed, theme, onFacingChange, coverPhase, screwsRemoved });
+  propsRef.current = { powered, pressed, theme, onFacingChange, coverPhase, screwsRemoved };
 
   useEffect(() => {
     const host = hostRef.current;
@@ -20,6 +21,8 @@ export default function ConsoleModel({ hostRef, resetRef, flipRef, onFacingChang
     let renderer, model, frame = null, disposed = false, failed = false;
     let drag, dragPose = { x: 0, y: 0 };
     let dimensions, lastX = NaN, lastY = NaN, visible = true;
+    let fallingSince = null;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     // The fallback may already have been flipped before this lazy model mounts.
     // Its first rendered (or failed) frame must synchronize the parent's view.
     let rearVisible = null;
@@ -64,7 +67,7 @@ export default function ConsoleModel({ hostRef, resetRef, flipRef, onFacingChang
       host.style.removeProperty('--model-perspective');
     };
 
-    const draw = () => {
+    const draw = (time = performance.now()) => {
       frame = null;
       if (disposed || failed || !dimensions || !visible || document.hidden) return;
       try {
@@ -73,7 +76,12 @@ export default function ConsoleModel({ hostRef, resetRef, flipRef, onFacingChang
         lastX = x; lastY = y;
         const rotation = consoleRotation(x, y, dragPose.x, dragPose.y);
         model.rotation.copy(rotation);
-        updateConsoleModel(model, propsRef.current);
+        const phase = propsRef.current.coverPhase;
+        if (phase === 'falling') fallingSince ??= time;
+        else fallingSince = null;
+        const coverProgress = phase === 'closed' ? 0 : phase === 'open' || reducedMotion.matches ? 1
+          : Math.min(1, (time - fallingSince) / COVER_FALL_DURATION);
+        updateConsoleModel(model, { ...propsRef.current, coverProgress });
         const dark = propsRef.current.theme === 'dark';
         ambient.intensity = dark ? 1.6 : 2.1;
         key.intensity = dark ? 2.8 : 3.1;
@@ -82,7 +90,7 @@ export default function ConsoleModel({ hostRef, resetRef, flipRef, onFacingChang
         if (failed) return;
         // Only replace the CSS case after WebGL has rendered successfully.
         host.style.setProperty('--model-transform', cssProjectionMatrix(rotation, dimensions.pixelsPerUnit));
-        host.style.setProperty('--model-rear-transform', cssRearProjectionMatrix(rotation, dimensions.pixelsPerUnit));
+        host.style.setProperty('--model-rear-transform', cssRearProjectionMatrix(rotation, dimensions.pixelsPerUnit, phase === 'open' ? -0.54 : undefined));
         host.style.setProperty('--model-perspective', `${dimensions.perspective}px`);
         host.dataset.renderer = 'webgl';
         const frontVisible = isConsoleFrontVisible(rotation);
@@ -90,6 +98,7 @@ export default function ConsoleModel({ hostRef, resetRef, flipRef, onFacingChang
         host.dataset.rotated = String(dragPose.x !== 0 || dragPose.y !== 0);
         if (front) front.inert = !frontVisible;
         setRearFacing(isConsoleRearVisible(rotation));
+        if (phase === 'falling' && coverProgress < 1) schedule();
       } catch {
         restoreFallback();
       }
@@ -201,6 +210,6 @@ export default function ConsoleModel({ hostRef, resetRef, flipRef, onFacingChang
     };
   }, [hostRef, resetRef, flipRef]);
 
-  useEffect(() => { updateRef.current?.(); }, [powered, pressed, theme]);
+  useEffect(() => { updateRef.current?.(); }, [powered, pressed, theme, coverPhase, screwsRemoved]);
   return <div className="model-viewport" ref={mountRef} aria-hidden="true" />;
 }
