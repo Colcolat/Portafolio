@@ -1,6 +1,15 @@
 // Presentation-only translations. Original project and credential data stays intact.
 export const spanishTranslations = {
   'Pocket radio': 'Radio de bolsillo',
+  'Journey controls': 'Controles del recorrido',
+  'Pocket radio audio visualizer': 'Visualizador de audio de la radio de bolsillo',
+  'Moonlight': 'Claro de luna',
+  'Radio ready': 'Radio lista',
+  'On air': 'Al aire',
+  'Radio paused': 'Radio en pausa',
+  'Sound off': 'Sonido apagado',
+  'Press play on the radio card': 'Pulsa reproducir en la tarjeta de la radio',
+  'Recording unavailable': 'Grabación no disponible',
   'Console speaker': 'Altavoz de la consola',
   'A small frequency, a little piece of my soul.': 'Una pequeña frecuencia, un pedacito de mi alma.',
   'Some sounds are waiting behind the little grille.': 'Algunos sonidos esperan detrás de la pequeña rejilla.',

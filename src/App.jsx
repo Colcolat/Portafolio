@@ -16,6 +16,7 @@ import RearConsole from './components/RearConsole';
 import { COVER_FALL_DURATION, createRearCover, rearCoverReducer } from './hooks/rearCover';
 import useRadioAudio from './hooks/useRadioAudio';
 import RadioJourney from './components/RadioJourney';
+import RadioVisualizer from './components/RadioVisualizer';
 
 // Keep the working CSS console if the optional 3D chunk cannot be loaded.
 const ConsoleModel = lazy(() => import('./components/ConsoleModel').catch(() => ({ default: () => null })));
@@ -223,7 +224,9 @@ export default function App() {
     if (radioActive) return;
     radioStartScroll.current = window.scrollY;
     radioReturnFocus.current = document.activeElement;
+    radioAudio.setMix({ radio: 1, piano: 0 });
     radioAudio.start();
+    setPowered(true); resetConsole();
     unlock('radio');
     setReader(null); setSecretsView(null);
     setRadioScene('radio'); setPortfolioHidden(false); setRadioActive(true);
@@ -421,8 +424,8 @@ export default function App() {
             <div className="bezel-heading"><span /><b>{t("DOT MATRIX WITH PERSONALITY")}</b><span /></div>
             <div className="battery-light"><i /><span>{t("BATTERY")}</span></div>
             <div className="lcd-shell">
-              <div className={`lcd ${section === 'game' ? 'game-lcd' : ''}`} aria-label={t("Console screen")} onTouchStart={event => { swipeStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }} onTouchEnd={event => { if (!swipeStart.current) return; const dx = event.changedTouches[0].clientX - swipeStart.current.x; const dy = event.changedTouches[0].clientY - swipeStart.current.y; if (Math.max(Math.abs(dx), Math.abs(dy)) > 25) direction(Math.abs(dx) > Math.abs(dy) ? dx > 0 ? 'right' : 'left' : dy > 0 ? 'down' : 'up'); swipeStart.current = null; }}>
-                {powered ? <div className="screen-content" key={section}>
+              <div className={`lcd ${radioActive ? 'radio-lcd' : section === 'game' ? 'game-lcd' : ''}`} aria-label={t("Console screen")} onTouchStart={event => { swipeStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }} onTouchEnd={event => { if (!swipeStart.current) return; const dx = event.changedTouches[0].clientX - swipeStart.current.x; const dy = event.changedTouches[0].clientY - swipeStart.current.y; if (Math.max(Math.abs(dx), Math.abs(dy)) > 25) direction(Math.abs(dx) > Math.abs(dy) ? dx > 0 ? 'right' : 'left' : dy > 0 ? 'down' : 'up'); swipeStart.current = null; }}>
+                {radioActive ? <RadioVisualizer t={t} status={radioAudio.status} readSpectrum={radioAudio.readSpectrum} active={!portfolioHidden && radioScene === 'radio'} /> : powered ? <div className="screen-content" key={section}>
                   <div className="lcd-topline"><span>{screenTitle}</span><span>{section === 'menu' ? '01' : section === 'game' ? pad(game.score) : `${index + 1}/${count}`}</span></div>
                   {section === 'secret' ? <div className="secret-lcd"><span className="secret-unlocked">✦ {t('SECRET UNLOCKED')} ✦</span>{lcdSecretId === 'cartridge' ? <CartridgeArt /> : <DeveloperRoomArt />}<h2>{t(lcdSecret.title)}</h2><button className="lcd-open" onClick={primary}>{t(lcdSecretId === 'cartridge' ? 'A: LOAD CARTRIDGE' : 'A: ENTER THE ROOM')}<span>↗</span></button></div> : <>
                   {section === 'menu' ? <div className="screen-menu">{sections.map((item, i) => <button key={item.id} className={selection === i ? 'active' : ''} aria-current={selection === i ? 'true' : undefined} onMouseEnter={() => setSelection(i)} onClick={() => chooseSection(item.id)}><span>{selection === i ? '▶' : ' '}</span>{t(item.label)}<small>{pad(i + 1)}</small></button>)}</div> : section === 'game' ? <div className="game-area"><svg className="snake-board" viewBox="0 0 120 120" role="img" aria-label={t('Snake board, score {score}', { score: game.score })}><defs><pattern id="game-grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0v10" fill="none" stroke="currentColor" strokeOpacity=".08" strokeWidth=".5" /></pattern></defs><rect width="120" height="120" fill="url(#game-grid)" />{game.snake.map((cell, i) => <rect key={`${cell.x}-${cell.y}`} x={cell.x * 10 + 1} y={cell.y * 10 + 1} width="8" height="8" fill="currentColor" opacity={i === 0 ? 1 : 0.7} />)}<rect x={game.food.x * 10 + 2} y={game.food.y * 10 + 2} width="6" height="6" fill="currentColor" /></svg>{game.status !== 'playing' && <div className="game-overlay"><strong>{t({ready: 'BYTE SNAKE', paused: 'TAKE A BREATHER', over: 'ONE MORE TRY?', won: 'YOU DID IT!'}[game.status])}</strong><p>{game.status === 'ready' ? t('Collect bytes. Keep growing.') : t('SCORE {score} · BEST {best}', { score: pad(game.score), best: pad(game.highScore) })}</p><button onClick={primary}>{t(game.status === 'paused' ? 'A: RESUME' : 'A: LET’S PLAY')}</button></div>}<span className="game-best">{t('BEST {best} · A: PAUSE', { best: pad(game.highScore) })}</span></div> : <div className="lcd-main" key={`${section}-${index}`}>
@@ -469,7 +472,7 @@ export default function App() {
     <footer className="site-footer"><span>© {new Date().getFullYear()} {profile.shortName}<span className="footer-dot">·</span>{t("BUILT WITH PURPOSE & LOGIC.")}</span><div><ExternalLink href={profile.github}>GitHub</ExternalLink><ExternalLink href={profile.linkedin}>LinkedIn</ExternalLink><button onClick={() => openReader('contact')}>{t("Say hello")} <Icon name="arrow" size={13} /></button></div><span className="footer-edition">{t("POCKET EDITION — VOL. 01")}</span></footer>
     <div className="secrets-footer"><button type="button" id="secrets-found" className="secrets-footer-button" data-discovered={foundIds.length > 0} onClick={() => setSecretsView('collection')}><span className="secrets-footer-symbol" aria-hidden="true">✧</span>{t('Secrets found')}<span>{foundIds.length}/{secretCatalog.length}</span></button></div>
     </div>
-    {radioActive && <RadioJourney t={t} sound={sound} onToggleSound={() => setSound(value => !value)} audioStatus={radioAudio.status} onTogglePlayback={radioAudio.togglePlayback} onClose={closeRadio} onSceneChange={setRadioScene} onPortfolioHidden={setPortfolioHidden} portfolioRef={portfolioSurfaceRef} startScroll={radioStartScroll.current} />}
+    {radioActive && <RadioJourney t={t} sound={sound} onToggleSound={() => { radioAudio.setSoundFromGesture(!sound); setSound(!sound); }} audioStatus={radioAudio.status} onTogglePlayback={radioAudio.togglePlayback} onClose={closeRadio} onSceneChange={setRadioScene} onMixChange={radioAudio.setMix} onPortfolioHidden={setPortfolioHidden} portfolioRef={portfolioSurfaceRef} startScroll={radioStartScroll.current} />}
     {reader && <Reader reader={reader} setReader={setReader} onClose={closeReader} t={t} />}
     {secretsView && <SecretsDialog view={secretsView} foundIds={foundIds} onView={view => view === 'radio' ? activateRadio() : setSecretsView(view)} onClose={() => setSecretsView(null)} t={t} />}
   </div>;

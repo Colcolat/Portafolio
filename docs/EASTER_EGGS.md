@@ -47,6 +47,19 @@ La apertura se reinicia al recargar; el descubrimiento del backend sigue guardad
 
 Las grabaciones proporcionadas se alojan en `public/audio/pocket-moonlight.mp3` y `public/audio/piano-chopin.mp3`. No se crean ni descargan audios antes de la activación explícita. Si el navegador bloquea la reproducción, el control permite reintentar; la experiencia sigue navegable sin sonido. Este secreto amplía la colección a cuatro descubrimientos y conserva los tres anteriores.
 
+### Entregado: refinamientos del recorrido y visualizador
+
+- [x] Ampliar el pasaje a `320svh` en escritorio y `300svh` en móvil para dar espacio a la transición.
+- [x] Desvanecer la tarjeta y Moonlight con el descenso mediante una envolvente suave; introducir Chopin gradualmente al entrar al recital, sin superponer dos pistas.
+- [x] Llevar todo el fondo al mismo marfil de la sala antes de que aparezca su primer contenido, sin un corte horizontal entre ambas escenas.
+- [x] Aumentar la altura y el brillo del pulso blanco conforme el usuario baja, manteniendo las partículas ambientales.
+- [x] Transformar la pantalla LCD en negro con un visualizador SVG de `16 × 12` bloques pixelados, alimentado por niveles reales de la grabación.
+- [x] Usar análisis opcional de `captureStream()` sobre el audio interno, sin micrófono ni permisos de grabación. Si no está disponible, conservar una línea base quieta; no simular un espectro ficticio.
+- [x] Detener la animación del espectro al pausar, desactivar la escena u ocultar la pestaña. Con movimiento reducido se mantiene un fotograma estático.
+- [x] Mostrar controles compactos durante el pasaje cuando la tarjeta ya desapareció; conservar pausa manual, silencio global, Escape y regreso al portafolio.
+
+Seguimiento: estas mejoras refinan la radio ya entregada, no crean otro secreto ni alteran los descubrimientos guardados. La colección sigue en **cuatro secretos**, con **dos secretos nuevos pendientes**.
+
 ## Después
 
 Pendientes: dos secretos nuevos.

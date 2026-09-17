@@ -96,7 +96,9 @@ test('translated templates preserve every data placeholder', () => {
 });
 
 test('radio, concert story and accessible playback controls have Spanish copy', () => {
-  const keys = ['Pocket radio', 'Console speaker', 'A small frequency, a little piece of my soul.',
+  const keys = ['Pocket radio', 'Console speaker', 'Journey controls', 'Pocket radio audio visualizer',
+    'Moonlight', 'Radio ready', 'On air', 'Radio paused', 'Sound off', 'Press play on the radio card',
+    'Recording unavailable', 'A small frequency, a little piece of my soul.',
     'Some sounds are waiting behind the little grille.', 'A FREQUENCY JUST FOR YOU',
     'One of the pieces I play on the piano.', 'Below, you’ll find a piece of my soul.',
     'Follow the light', 'Back to the pocket world', 'A little further, a little closer.',

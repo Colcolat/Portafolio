@@ -5,6 +5,8 @@ export default function useRadioAudio({ active, scene = 'radio', sound = true })
   const [status, setStatus] = useState('idle');
   const controller = useRef(null);
   const settings = useRef({ scene, sound });
+  const silentSpectrum = useRef(null);
+  if (!silentSpectrum.current) silentSpectrum.current = new Float32Array(16);
 
   useLayoutEffect(() => {
     settings.current = { scene, sound };
@@ -40,6 +42,9 @@ export default function useRadioAudio({ active, scene = 'radio', sound = true })
   const start = useCallback(() => ensureController().start(), [ensureController]);
   const stop = useCallback(() => controller.current?.stop(), []);
   const togglePlayback = useCallback(() => ensureController().togglePlayback(), [ensureController]);
+  const setMix = useCallback(mix => ensureController().setMix(mix), [ensureController]);
+  const readSpectrum = useCallback(() => controller.current?.readSpectrum() || silentSpectrum.current, []);
+  const setSoundFromGesture = useCallback(soundOn => ensureController().setSoundFromGesture(soundOn), [ensureController]);
 
-  return { status, start, stop, togglePlayback };
+  return { status, start, stop, togglePlayback, setMix, readSpectrum, setSoundFromGesture };
 }
