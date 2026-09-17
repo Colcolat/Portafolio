@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createMemoryDeck, createMemoryGame, memoryGameReducer, memoryNeighbor, memoryRevealDelay, memorySymbols } from '../src/hooks/memoryGame.js';
 
-const orderedDeck = ['vault', 'bolt', 'sprout', 'smile', 'vault', 'bolt', 'sprout', 'smile'];
+const orderedDeck = ['league', 'elden-ring', 'tf2', 'ghost', 'league', 'elden-ring', 'tf2', 'ghost'];
 const flip = (state, index) => memoryGameReducer(state, { type: 'flip', index });
 const resolve = state => memoryGameReducer(state, { type: 'resolve' });
 
@@ -14,15 +14,15 @@ test('shuffle always returns eight cards with four complete pairs without changi
   }
   assert.deepEqual(createMemoryDeck(() => 0.999999), orderedDeck);
   assert.notDeepEqual(createMemoryDeck(() => 0), orderedDeck);
-  assert.deepEqual(memorySymbols, ['vault', 'bolt', 'sprout', 'smile']);
+  assert.deepEqual(memorySymbols, ['league', 'elden-ring', 'tf2', 'ghost']);
 });
 
 test('new games validate and copy their deck with no existing score', () => {
   const deck = [...orderedDeck];
   const game = createMemoryGame(deck);
-  deck[0] = 'smile';
+  deck[0] = 'ghost';
   assert.deepEqual(game, { deck: orderedDeck, flipped: [], matched: [], moves: 0, phase: 'playing' });
-  for (const invalid of [null, [], ['vault'], Array(8).fill('vault'), [...orderedDeck.slice(0, 7), 'unknown']]) {
+  for (const invalid of [null, [], ['league'], Array(8).fill('league'), ['vault', 'bolt', 'sprout', 'smile', 'vault', 'bolt', 'sprout', 'smile'], [...orderedDeck.slice(0, 7), 'unknown']]) {
     assert.throws(() => createMemoryGame(invalid));
   }
 });

@@ -1,9 +1,8 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
-import PixelArt from './PixelArt';
+import MemoryGameIcon from './MemoryGameIcon';
+import { memoryGames, memoryGameById } from '../data/memoryGames';
 import { createMemoryDeck, createMemoryGame, memoryGameReducer, memoryNeighbor, memoryRevealDelay } from '../hooks/memoryGame';
 import './SecretCartridge.css';
-
-const symbolNames = { vault: 'Vault', bolt: 'Lightning', sprout: 'Sprout', smile: 'Smile' };
 
 export function CartridgeArt() {
   return <svg className="cartridge-art secret-cartridge-art" viewBox="0 0 96 80" aria-hidden="true" focusable="false" shapeRendering="crispEdges">
@@ -61,8 +60,11 @@ export default function SecretCartridge({ t }) {
   };
 
   return <div className="secret-cartridge">
-    <p className="secret-cartridge__intro">{t('One more game was hiding in plain sight.')}</p>
+    <p className="secret-cartridge__intro">{t('Four favourite worlds. One little cartridge.')}</p>
     <p className="secret-cartridge__instructions">{t('Eight cards. Four pairs. No timer, just a little curiosity.')}</p>
+    <ul className="secret-cartridge__lineup" aria-label={t('My favourite games')}>
+      {memoryGames.map(game => <li key={game.id}>{game.title}</li>)}
+    </ul>
     <section className="secret-cartridge__shell" aria-label={t('Pocket pairs memory game')}>
       <div className="secret-cartridge__ridges" aria-hidden="true"><i /><i /><i /></div>
       <div className="secret-cartridge__label">
@@ -76,7 +78,7 @@ export default function SecretCartridge({ t }) {
             const matched = game.matched.includes(index);
             const revealed = matched || game.flipped.includes(index);
             const label = revealed
-              ? t(matched ? 'Card {number}: {symbol}, matched' : 'Card {number}: {symbol}', { number: index + 1, symbol: t(symbolNames[symbol]) })
+              ? t(matched ? 'Card {number}: {symbol}, matched' : 'Card {number}: {symbol}', { number: index + 1, symbol: memoryGameById[symbol].title })
               : t('Card {number}: face down', { number: index + 1 });
             return <button key={index} ref={node => { cardRefs.current[index] = node; }} type="button"
               className={`secret-cartridge__card${revealed ? ' is-revealed' : ''}${matched ? ' is-matched' : ''}`}
@@ -84,7 +86,7 @@ export default function SecretCartridge({ t }) {
               aria-disabled={matched || game.phase !== 'playing' || revealed}
               onFocus={() => setFocusedCard(index)} onKeyDown={event => navigate(event, index)}
               onClick={() => dispatch({ type: 'flip', index })}>
-              {revealed ? <PixelArt name={symbol} /> : <span aria-hidden="true">?</span>}
+              {revealed ? <span className="secret-cartridge__card-face" aria-hidden="true"><MemoryGameIcon name={symbol} /><span className="secret-cartridge__game-name">{memoryGameById[symbol].shortTitle}</span></span> : <span aria-hidden="true">?</span>}
               <small aria-hidden="true">{matched ? '✓' : String(index + 1).padStart(2, '0')}</small>
             </button>;
           })}

@@ -24,14 +24,18 @@ Solicitado el 12 de septiembre de 2026:
 
 La apertura se reinicia al recargar; el descubrimiento del backend sigue guardado. «Reponer tapa» permite repetir el mecanismo sin borrar secretos. La alternativa sin WebGL conserva tornillos, caída de tapa, interior y panel accesible.
 
+## Entregado: cartucho de videojuegos favoritos
+
+- [x] Personalizar el juego de memoria del cartucho secreto con los videojuegos favoritos de Juan: League of Legends, Elden Ring, Team Fortress 2 (TF2) y Ghost of Tsushima.
+  - Una pareja por videojuego: cuatro iconos distintos, cada uno repetido dos veces, conservando las ocho cartas.
+  - Interpretaciones en pixel art de los emblemas y la máscara samurái, siguiendo la cuadrícula, paleta LCD y estilo retro del portafolio.
+  - Nombres completos accesibles en ambos idiomas y etiquetas cortas en las cartas reveladas. Las cartas boca abajo no exponen su videojuego.
+  - Las reglas, controles, intentos, reinicio y progreso de descubrimientos existentes se conservan; no se añade otro secreto.
+
 ## Después
 
-Pendientes: tres secretos nuevos y una mejora del cartucho existente.
+Pendientes: tres secretos nuevos.
 
-- [ ] Personalizar el juego de memoria del cartucho secreto con los videojuegos favoritos de Juan: League of Legends, Elden Ring, Team Fortress 2 (TF2) y Ghost of Tsushima.
-  - Una pareja por videojuego: cuatro iconos distintos, cada uno repetido dos veces, conservando las ocho cartas.
-  - Crear un icono representativo de cada juego en pixel art, siguiendo la cuadrícula, paleta LCD y estilo retro del portafolio.
-  - Actualizar los nombres accesibles de las cartas en ambos idiomas; conservar las reglas, controles y progreso de descubrimientos existentes.
 - [ ] Radio de bolsillo: secuencia en el altavoz, melodía chiptune original y visualizador; respetar siempre el silencio.
 - [ ] Visitante diminuto: personaje pixelado tras permanecer en el menú, sin interrumpir la navegación.
 - [ ] Recompensa de Byte Snake: desbloqueo por puntuación, con recompensa visual por definir.

@@ -1,4 +1,6 @@
-export const memorySymbols = Object.freeze(['vault', 'bolt', 'sprout', 'smile']);
+import { memoryGames } from '../data/memoryGames.js';
+
+export const memorySymbols = Object.freeze(memoryGames.map(game => game.id));
 export const memoryRevealDelay = 850;
 
 export function createMemoryDeck(random = Math.random) {
