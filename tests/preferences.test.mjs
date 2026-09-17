@@ -94,3 +94,27 @@ test('translated templates preserve every data placeholder', () => {
   assert.equal(translate('Email: {email}', 'es', { email: 'test@example.com' }), 'Correo: test@example.com');
   assert.equal(translate('MODULE {number}', 'en', { number: '02' }), 'MODULE 02');
 });
+
+test('radio, concert story and accessible playback controls have Spanish copy', () => {
+  const keys = ['Pocket radio', 'Console speaker', 'A small frequency, a little piece of my soul.',
+    'Some sounds are waiting behind the little grille.', 'A FREQUENCY JUST FOR YOU',
+    'One of the pieces I play on the piano.', 'Below, you’ll find a piece of my soul.',
+    'Follow the light', 'Back to the pocket world', 'A little further, a little closer.',
+    'Ready to listen', 'Tuning in…', 'Now playing', 'Music paused', 'Sound is off',
+    'Press play to begin the music.', 'The recording could not load. You can try again.',
+    'Pause music', 'Play music', 'Pause', 'Play', 'A piece of my soul', 'Return to the little screen',
+    'An intimate recital', 'I dedicate my favourite melody to you.', 'Some things are easier to say with music.',
+    'For you, wherever you are.', 'Piano music controls', 'A favourite piece from my repertoire.',
+    'Pause melody', 'Play melody', 'Loading', 'Mute piano music', 'Unmute piano music',
+    'Behind the melody', 'It began when I was five.',
+    'I have played the piano since I was five and have taken part in concerts.', 'My piano teacher was',
+    'This is another part of me. Thank you for finding it.', 'Pieces I love to play', 'My favourite melody',
+    'A hidden room. An open heart.', 'Back to the portfolio', 'Ready when you are.', 'The melody is loading…',
+    'Let the music stay a little longer.', 'A moment of silence.', 'Press play to begin the melody.',
+    'The recording could not load. You can try playing it again.', 'Sound is off. The room is still yours.'];
+  for (const key of keys) {
+    assert.ok(spanishTranslations[key], key);
+    assert.notEqual(translate(key, 'es'), key);
+    assert.equal(translate(key, 'en'), key);
+  }
+});

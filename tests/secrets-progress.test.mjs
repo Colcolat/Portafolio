@@ -17,11 +17,32 @@ function memoryStorage(value = null) {
   };
 }
 
-test('secret catalog counts only the three implemented discoveries with separate views and hints', () => {
-  assert.deepEqual(secretCatalog.map(secret => secret.id), ['developer-room', 'backend', 'cartridge']);
+test('secret catalog counts only the four implemented discoveries with separate views and hints', () => {
+  assert.deepEqual(secretCatalog.map(secret => secret.id), ['developer-room', 'backend', 'cartridge', 'radio']);
   assert.equal(new Set(secretCatalog.map(secret => secret.id)).size, secretCatalog.length);
   assert.equal(new Set(secretCatalog.map(secret => secret.view)).size, secretCatalog.length);
   assert.ok(secretCatalog.every(secret => secret.title && secret.description && secret.hint));
+});
+
+test('the radio preserves all earlier discoveries and does not duplicate a return visit', () => {
+  const earlier = ['developer-room', 'backend', 'cartridge'];
+  const storage = memoryStorage(JSON.stringify(earlier));
+  const before = readSecrets(storage);
+  const complete = unlockSecret(before, 'radio');
+  assert.deepEqual(before, earlier);
+  assert.deepEqual(complete, [...earlier, 'radio']);
+  assert.strictEqual(unlockSecret(complete, 'radio'), complete);
+  saveSecrets(complete, storage);
+  assert.deepEqual(readSecrets(storage), complete);
+  // Only discovery IDs are persisted, never playback or entrance state.
+  assert.equal(storage.getItem(secretsStorageKey), JSON.stringify(complete));
+});
+
+test('the radio can be discovered first and stored IDs retain catalog order', () => {
+  assert.deepEqual(unlockSecret([], 'radio'), ['radio']);
+  assert.deepEqual(unlockSecret(['radio'], 'cartridge'), ['cartridge', 'radio']);
+  const storage = memoryStorage('["radio","unknown","radio","cartridge","backend","developer-room"]');
+  assert.deepEqual(readSecrets(storage), ['developer-room', 'backend', 'cartridge', 'radio']);
 });
 
 test('the cartridge preserves both earlier discoveries and never duplicates progress', () => {

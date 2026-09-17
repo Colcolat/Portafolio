@@ -107,6 +107,16 @@ test('protected DOM descendants reject a drag even if the ray would hit plain ca
   });
 });
 
+test('speaker cavities protect the radio taps from starting a casing drag', () => {
+  fixture(({ model, hitTest, eventAtMesh }) => {
+    for (let i = 1; i <= 6; i += 1) {
+      const name = `Speaker cavity ${i}`;
+      assert.equal(model.getObjectByName(name).userData.dragBlocked, true);
+      assert.equal(hitTest(eventAtMesh(name)), false);
+    }
+  });
+});
+
 test('drag blocking traverses all mesh ancestors and cannot miss protected assemblies', () => {
   assert.equal(isDraggableConsoleHit(undefined), false);
   const root = new Group(), parent = new Group(), mesh = new Group();

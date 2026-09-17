@@ -21,4 +21,11 @@ export const secretCatalog = [
     description: 'A little game tucked inside the name.',
     hint: 'Sometimes a familiar name needs a little persistence.',
   },
+  {
+    id: 'radio',
+    view: 'radio',
+    title: 'Pocket radio',
+    description: 'A small frequency, a little piece of my soul.',
+    hint: 'Some sounds are waiting behind the little grille.',
+  },
 ];

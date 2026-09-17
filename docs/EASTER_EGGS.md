@@ -9,6 +9,7 @@ Los descubrimientos existentes se conservan en `pocketfolio.secrets.v1`.
 - [x] Encontraste el backend: vista de tecnologías reales, accesible desde el panel interior tras retirar los cuatro tornillos traseros.
 
 - [x] Cartucho secreto: cinco pulsaciones consecutivas sobre el logotipo «pocket» de la consola revelan un cartucho en la pantalla; abre un minijuego de memoria de cuatro parejas.
+- [x] Radio de bolsillo: tres pulsaciones consecutivas en el altavoz abren una frecuencia musical y el recorrido secreto hacia la sala de piano.
 
 ## Entregado: rediseño del descubrimiento del backend
 
@@ -32,10 +33,23 @@ La apertura se reinicia al recargar; el descubrimiento del backend sigue guardad
   - Nombres completos accesibles en ambos idiomas y etiquetas cortas en las cartas reveladas. Las cartas boca abajo no exponen su videojuego.
   - Las reglas, controles, intentos, reinicio y progreso de descubrimientos existentes se conservan; no se añade otro secreto.
 
+## Entregado: radio de bolsillo y sala de piano
+
+- [x] Pulsar tres veces el altavoz, con un máximo de 1.2 segundos entre pulsaciones. Funciona con ratón, tacto o Enter/Espacio sin contar teclas mantenidas.
+- [x] La secuencia sólo funciona con la consola encendida, de frente, sin diálogos abiertos ni una partida de Byte Snake. No interfiere con el arrastre de la carcasa.
+- [x] Reproducir el archivo de Moonlight proporcionado al activar la radio, con una pequeña tarjeta que presenta una de las piezas que Juan puede tocar al piano y anuncia que abajo hay una pieza de su alma.
+- [x] Oscurecer gradualmente el fondo con textura pixelada; mostrar abajo una ola luminosa blanca y partículas flotantes.
+- [x] Al bajar hacia la luz, desvanecer el portafolio y descubrir una sala blanca de concierto con detalles negros y dorados, pianista animado y la dedicatoria «Te dedico mi melodía favorita».
+- [x] Cambiar al archivo de Chopin proporcionado al entrar a la sala, sin dos pistas simultáneas. Volver hacia la radio recupera Moonlight.
+- [x] Relatar que Juan toca el piano desde los cinco años, participó en conciertos y tuvo como maestra a **Irina Decheva**. Mostrar las seis piezas favoritas que indicó, sin inventar conciertos ni atribuirle las grabaciones adjuntas.
+- [x] Mantener la sala fuera del recorrido y del foco hasta activar el secreto en esa visita. Guardar sólo el descubrimiento `radio`: recargar no abre la sala ni inicia música, y la colección permite volver a entrar explícitamente.
+- [x] Conservar pausa, silencio global y controles para volver o salir con Escape. Respetar movimiento reducido y pausar la reproducción al ocultar la pestaña.
+
+Las grabaciones proporcionadas se alojan en `public/audio/pocket-moonlight.mp3` y `public/audio/piano-chopin.mp3`. No se crean ni descargan audios antes de la activación explícita. Si el navegador bloquea la reproducción, el control permite reintentar; la experiencia sigue navegable sin sonido. Este secreto amplía la colección a cuatro descubrimientos y conserva los tres anteriores.
+
 ## Después
 
-Pendientes: tres secretos nuevos.
+Pendientes: dos secretos nuevos.
 
-- [ ] Radio de bolsillo: secuencia en el altavoz, melodía chiptune original y visualizador; respetar siempre el silencio.
 - [ ] Visitante diminuto: personaje pixelado tras permanecer en el menú, sin interrumpir la navegación.
 - [ ] Recompensa de Byte Snake: desbloqueo por puntuación, con recompensa visual por definir.

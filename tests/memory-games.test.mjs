@@ -21,7 +21,9 @@ test('the four pairs represent exactly Juan’s favourite games with distinct la
 
 test('new memory card artwork neither adds a secret nor changes earlier discoveries', () => {
   const found = ['developer-room', 'backend', 'cartridge'];
-  assert.deepEqual(secretCatalog.map(secret => secret.id), found);
+  assert.ok(found.every(id => secretCatalog.some(secret => secret.id === id)));
+  assert.equal(secretCatalog.filter(secret => secret.id === 'cartridge').length, 1);
+  assert.ok(memorySymbols.every(id => !secretCatalog.some(secret => secret.id === id)), 'individual memory pairs do not count as discoveries');
   let stored = JSON.stringify(found);
   const storage = { getItem: () => stored, setItem: (_key, value) => { stored = value; } };
   saveSecrets(readSecrets(storage), storage);

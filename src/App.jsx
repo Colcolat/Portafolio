@@ -14,6 +14,8 @@ import { CartridgeArt } from './components/SecretCartridge';
 import { createSecretTapMatcher } from './hooks/secretTaps';
 import RearConsole from './components/RearConsole';
 import { COVER_FALL_DURATION, createRearCover, rearCoverReducer } from './hooks/rearCover';
+import useRadioAudio from './hooks/useRadioAudio';
+import RadioJourney from './components/RadioJourney';
 
 // Keep the working CSS console if the optional 3D chunk cannot be loaded.
 const ConsoleModel = lazy(() => import('./components/ConsoleModel').catch(() => ({ default: () => null })));
@@ -148,6 +150,14 @@ export default function App() {
   const [index, setIndex] = useState(0);
   const [reader, setReader] = useState(null);
   const [secretsView, setSecretsView] = useState(null);
+  const [radioActive, setRadioActive] = useState(false);
+  const [radioScene, setRadioScene] = useState('radio');
+  const [portfolioHidden, setPortfolioHidden] = useState(false);
+  const portfolioSurfaceRef = useRef(null);
+  const radioStartScroll = useRef(0);
+  const radioReturnFocus = useRef(null);
+  const radioTapsRef = useRef(null);
+  if (!radioTapsRef.current) radioTapsRef.current = createSecretTapMatcher({ count: 3 });
   const [lcdSecretId, setLcdSecretId] = useState('developer-room');
   const lcdSecret = secretCatalog.find(secret => secret.id === lcdSecretId);
   const { foundIds, unlock } = useSecrets();
@@ -157,6 +167,8 @@ export default function App() {
   if (!cartridgeTapsRef.current) cartridgeTapsRef.current = createSecretTapMatcher();
   const [powered, setPowered] = useState(true);
   const { sound, setSound, language, setLanguage, theme, setTheme } = usePreferences();
+  const radioAudio = useRadioAudio({ active: radioActive, scene: radioScene, sound });
+  const stopRadioAudio = radioAudio.stop;
   const t = useCallback((text, values) => translate(text, language, values), [language]);
   const [pressed, setPressed] = useState('');
   const pressTimer = useRef(null);
@@ -186,12 +198,12 @@ export default function App() {
     else setBackFacing(value => !value);
   };
   useConsoleTilt(consoleMotionRef);
-  const game = useByteGame({ enabled: powered && section === 'game' && !reader && !secretsView && !backFacing });
+  const game = useByteGame({ enabled: powered && section === 'game' && !reader && !secretsView && !backFacing && !radioActive });
   const { turn: turnSnake, primary: controlSnake } = game;
 
   useEffect(() => () => { clearTimeout(pressTimer.current); audioRef.current?.close(); }, []);
   const beep = useCallback((frequency = 440) => {
-    if (!sound) return;
+    if (!sound || radioActive) return;
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       if (!AudioContext) return;
@@ -206,7 +218,33 @@ export default function App() {
       oscillator.connect(gain); gain.connect(context.destination);
       oscillator.start(); oscillator.stop(context.currentTime + 0.08);
     } catch { /* Sound is optional. */ }
-  }, [sound]);
+  }, [sound, radioActive]);
+  const activateRadio = () => {
+    if (radioActive) return;
+    radioStartScroll.current = window.scrollY;
+    radioReturnFocus.current = document.activeElement;
+    radioAudio.start();
+    unlock('radio');
+    setReader(null); setSecretsView(null);
+    setRadioScene('radio'); setPortfolioHidden(false); setRadioActive(true);
+    codeRef.current.reset(); cartridgeTapsRef.current.reset(); radioTapsRef.current.reset();
+  };
+  const closeRadio = useCallback(() => {
+    stopRadioAudio();
+    setRadioActive(false); setRadioScene('radio'); setPortfolioHidden(false);
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: radioStartScroll.current, behavior: 'instant' });
+      const target = radioReturnFocus.current;
+      (target?.isConnected ? target : document.getElementById('secrets-found'))?.focus({ preventScroll: true });
+    });
+  }, [stopRadioAudio]);
+  const tapSpeaker = () => {
+    if (radioActive || !powered || backFacing || reader || secretsView || section === 'game') {
+      radioTapsRef.current.reset(); return;
+    }
+    codeRef.current.reset(); cartridgeTapsRef.current.reset();
+    if (radioTapsRef.current.push()) activateRadio();
+  };
   const flash = useCallback((button) => {
     setPressed(button); clearTimeout(pressTimer.current);
     pressTimer.current = setTimeout(() => setPressed(''), 130);
@@ -250,17 +288,21 @@ export default function App() {
   useEffect(() => {
     if (!powered || reader || secretsView || backFacing || section === 'game' || section === 'secret') codeRef.current.reset();
   }, [powered, reader, secretsView, backFacing, section]);
-  useEffect(() => { cartridgeTapsRef.current.reset(); }, [powered, reader, secretsView, backFacing, section]);
+  useEffect(() => { cartridgeTapsRef.current.reset(); radioTapsRef.current.reset(); }, [powered, reader, secretsView, backFacing, section, radioActive]);
   useEffect(() => {
     if (section !== 'secret') return;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     consoleMotionRef.current?.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'instant' : 'smooth' });
   }, [section]);
   useEffect(() => {
-    const reset = () => { codeRef.current.reset(); cartridgeTapsRef.current.reset(); };
-    const otherPointer = event => { if (!event.target?.closest?.('.console-brand-mark')) cartridgeTapsRef.current.reset(); };
+    const reset = () => { codeRef.current.reset(); cartridgeTapsRef.current.reset(); radioTapsRef.current.reset(); };
+    const otherPointer = event => {
+      if (!event.target?.closest?.('.console-brand-mark')) cartridgeTapsRef.current.reset();
+      if (!event.target?.closest?.('.speaker-trigger')) radioTapsRef.current.reset();
+    };
     const otherKey = event => {
       if (!event.target?.closest?.('.console-brand-mark') || !['Enter', ' '].includes(event.key)) cartridgeTapsRef.current.reset();
+      if (!event.target?.closest?.('.speaker-trigger') || !['Enter', ' '].includes(event.key)) radioTapsRef.current.reset();
     };
     const visibility = () => { if (document.hidden) reset(); };
     window.addEventListener('blur', reset);
@@ -317,8 +359,8 @@ export default function App() {
   };
   useEffect(() => {
     const handleKey = (event) => {
-      const nativeConsoleActivation = event.target?.closest?.('.console-brand-mark, .lcd-open') && ['Enter', ' '].includes(event.key);
-      if (reader || secretsView || backFacing || nativeConsoleActivation || event.target?.closest?.('.console-orbit-tools, .console-rear') || isSecretInputBlocked(event)) { codeRef.current.reset(); return; }
+      const nativeConsoleActivation = event.target?.closest?.('.console-brand-mark, .lcd-open, .speaker-trigger') && ['Enter', ' '].includes(event.key);
+      if (radioActive || reader || secretsView || backFacing || nativeConsoleActivation || event.target?.closest?.('.console-orbit-tools, .console-rear') || isSecretInputBlocked(event)) { codeRef.current.reset(); return; }
       const key = event.key.toLowerCase();
       const token = keyboardKonamiToken(event);
       const arrows = { arrowup: 'up', arrowdown: 'down', arrowleft: 'left', arrowright: 'right' };
@@ -332,7 +374,7 @@ export default function App() {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [reader, secretsView, backFacing, acceptSecretInput, direction, primary, secondary, start]);
+  }, [reader, secretsView, backFacing, radioActive, acceptSecretInput, direction, primary, secondary, start]);
   const openReader = (next = 'about', nextIndex = 0) => setReader({ section: next, index: nextIndex });
   const closeReader = useCallback(() => setReader(null), []);
   const selected = sections.find(item => item.id === section);
@@ -343,7 +385,8 @@ export default function App() {
   const screenTitle = section === 'menu' ? t('YOUR LITTLE WORLD') : section === 'secret' ? t(lcdSecretId === 'cartridge' ? 'BONUS CARTRIDGE' : 'SECRET ROOM') : section === 'game' ? 'BYTE SNAKE' : t(selected?.label).toUpperCase();
   const announcement = !powered ? t('Console powered off') : section === 'secret' ? t(lcdSecretId === 'cartridge' ? 'Secret found: the hidden cartridge.' : 'Secret found: the developer room.') : section === 'menu' ? t('Menu: {section}', { section: t(sections[selection].label) }) : section === 'projects' ? t('Project {number}: {title}', { number: index + 1, title: currentProject.title }) : section === 'certificates' ? t('Certificate {number}: {title}', { number: index + 1, title: currentCertificate.title }) : section === 'skills' ? t(currentSkills.title) : section === 'game' ? t('Byte Snake. {status}. Score {score}', { status: t(game.status), score: game.score }) : t(selected?.label);
 
-  return <div className="portfolio-page">
+  return <div className="portfolio-page" data-radio-active={radioActive}>
+    <div className="portfolio-surface" ref={portfolioSurfaceRef} inert={radioActive ? '' : undefined} aria-hidden={portfolioHidden || undefined}>
     <a className="skip-link" href="#full-portfolio" onClick={event => { event.preventDefault(); openReader(); }}>{t("Skip to full portfolio")}</a>
     <header className="site-header">
       <button className="wordmark" onClick={start} aria-label={t("Pocketfolio home")}><span className="wordmark-icon"><i /><b /><em /></span>pocketfolio<span className="wordmark-dot">.</span></button>
@@ -402,7 +445,7 @@ export default function App() {
             <div className="action-buttons"><div><button className={`action-button b-button ${pressed === 'b' ? 'pressed' : ''}`} aria-label={t("B button — back to menu")} onClick={secondary} /><span>B</span></div><div><button className={`action-button a-button ${pressed === 'a' ? 'pressed' : ''}`} aria-label={t("A button — select or open")} onClick={primary} /><span>A</span></div></div>
           </div>
           <div className="system-buttons"><div><button className={pressed === 'select' ? 'pressed' : ''} aria-label={t("Select button — next section")} onClick={select} /><span>SELECT</span></div><div><button className={pressed === 'start' ? 'pressed' : ''} aria-label={t("Start button — home menu")} onClick={start} /><span>START</span></div></div>
-          <div className="speaker" aria-hidden="true">{Array.from({length: 6}, (_, i) => <i key={i} />)}</div>
+          <button className="speaker speaker-trigger" type="button" aria-label={t('Console speaker')} onClick={tapSpeaker} onKeyDown={event => { if (event.repeat) event.preventDefault(); }}>{Array.from({length: 6}, (_, i) => <i key={i} aria-hidden="true" />)}</button>
           <span className="case-serial">EST. 2026</span><div className="headphone-port" aria-hidden="true">◖◗</div>
         </div>
         <RearConsole t={t} backFacing={backFacing} removedScrews={rearCover.removedScrews} coverPhase={rearCover.phase} onScrew={unscrewRear} onDiscover={discoverBackend} />
@@ -425,7 +468,9 @@ export default function App() {
     </main>
     <footer className="site-footer"><span>© {new Date().getFullYear()} {profile.shortName}<span className="footer-dot">·</span>{t("BUILT WITH PURPOSE & LOGIC.")}</span><div><ExternalLink href={profile.github}>GitHub</ExternalLink><ExternalLink href={profile.linkedin}>LinkedIn</ExternalLink><button onClick={() => openReader('contact')}>{t("Say hello")} <Icon name="arrow" size={13} /></button></div><span className="footer-edition">{t("POCKET EDITION — VOL. 01")}</span></footer>
     <div className="secrets-footer"><button type="button" id="secrets-found" className="secrets-footer-button" data-discovered={foundIds.length > 0} onClick={() => setSecretsView('collection')}><span className="secrets-footer-symbol" aria-hidden="true">✧</span>{t('Secrets found')}<span>{foundIds.length}/{secretCatalog.length}</span></button></div>
+    </div>
+    {radioActive && <RadioJourney t={t} sound={sound} onToggleSound={() => setSound(value => !value)} audioStatus={radioAudio.status} onTogglePlayback={radioAudio.togglePlayback} onClose={closeRadio} onSceneChange={setRadioScene} onPortfolioHidden={setPortfolioHidden} portfolioRef={portfolioSurfaceRef} startScroll={radioStartScroll.current} />}
     {reader && <Reader reader={reader} setReader={setReader} onClose={closeReader} t={t} />}
-    {secretsView && <SecretsDialog view={secretsView} foundIds={foundIds} onView={setSecretsView} onClose={() => setSecretsView(null)} t={t} />}
+    {secretsView && <SecretsDialog view={secretsView} foundIds={foundIds} onView={view => view === 'radio' ? activateRadio() : setSecretsView(view)} onClose={() => setSecretsView(null)} t={t} />}
   </div>;
 }

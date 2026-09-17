@@ -1,0 +1,133 @@
+.piano-room {
+  --piano-paper: #faf9f5;
+  --piano-ink: #252b24;
+  --piano-muted: #717367;
+  --piano-gold: #927441;
+  --piano-line: #ddd8cb;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100svh;
+  overflow: clip;
+  background: var(--piano-paper);
+  color: var(--piano-ink);
+  color-scheme: light;
+  font-family: 'DM Sans', sans-serif;
+  text-align: left;
+}
+.piano-room::before {
+  position: absolute;
+  z-index: -1;
+  content: '';
+  inset: 0;
+  background: radial-gradient(ellipse at 78% 21%, #e9dec533, transparent 47%), linear-gradient(90deg, #fff8, transparent 45%, #fff3);
+  pointer-events: none;
+}
+.piano-room__inner { width: min(1360px, 100%); margin-inline: auto; padding: 0 clamp(24px, 6.5vw, 100px); }
+.piano-room button { font-family: 'DM Sans', sans-serif; }
+.piano-room button:focus-visible { outline: 2px solid var(--piano-gold); outline-offset: 5px; }
+.piano-room__masthead { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 112px; border-bottom: 1px solid var(--piano-line); }
+.piano-room__signature { display: flex; align-items: center; gap: 13px; font-family: 'Instrument Serif', Georgia, serif; font-size: 23px; letter-spacing: -.3px; }
+.piano-room__signature > span { color: var(--piano-gold); font-size: 34px; }
+.piano-room__return { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; font-size: 10px; letter-spacing: .5px; color: var(--piano-muted); }
+.piano-room__return > span { color: var(--piano-gold); font-size: 19px; }
+.piano-room__return:hover, .piano-room__footer button:hover { color: var(--piano-gold); }
+.piano-room__hero { position: relative; min-height: 660px; display: flex; align-items: center; padding: 72px 0 120px; }
+.piano-room__scene { position: absolute; width: min(88%, 910px); height: auto; right: -125px; bottom: 0; pointer-events: none; }
+.piano-room__invitation { position: relative; width: min(49%, 540px); z-index: 1; }
+.piano-room__eyebrow { font-size: 9px; line-height: 1.6; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--piano-gold); }
+.piano-room__invitation > .piano-room__eyebrow { display: flex; align-items: center; gap: 12px; margin: 0 0 28px; }
+.piano-room__invitation > .piano-room__eyebrow > span { width: 30px; height: 1px; background: currentColor; }
+.piano-room__invitation h2 { font-family: 'Instrument Serif', Georgia, serif; font-size: clamp(64px, 6.4vw, 88px); font-weight: 400; line-height: .98; letter-spacing: -2.1px; margin: 0; text-wrap: balance; }
+.piano-room__invitation h2:focus { outline: none; }
+.piano-room__dedication { max-width: 250px; font-size: 12px; line-height: 1.8; color: var(--piano-muted); margin: 25px 0 0; }
+.piano-room__flourish { display: block; color: var(--piano-gold); font: 49px 'Instrument Serif', Georgia, serif; margin-top: 26px; opacity: .7; }
+.piano-room__scene-caption { position: absolute; bottom: 29px; right: 0; font-size: 9px; line-height: 1.6; letter-spacing: .5px; color: var(--piano-muted); margin: 0; }
+.piano-room__scene-caption > span { color: var(--piano-gold); }
+.piano-room__player { position: relative; display: grid; grid-template-columns: 41px minmax(0, 1fr) auto; gap: 0 26px; align-items: center; padding: 27px 30px 17px; border: 1px solid var(--piano-line); background: #ffffff80; }
+.piano-room__equalizer { display: flex; height: 35px; gap: 4px; align-items: center; }
+.piano-room__equalizer i { width: 3px; height: 12px; background: var(--piano-gold); transform-origin: center; }
+.piano-room__equalizer i:nth-child(2) { height: 25px; }.piano-room__equalizer i:nth-child(3) { height: 33px; }.piano-room__equalizer i:nth-child(4) { height: 20px; }.piano-room__equalizer i:nth-child(5) { height: 9px; }
+.piano-room__equalizer.is-playing i { animation: piano-equalizer 1.4s ease-in-out infinite alternate; }
+.piano-room__equalizer.is-playing i:nth-child(2) { animation-delay: -.7s; }.piano-room__equalizer.is-playing i:nth-child(3) { animation-delay: -.3s; }.piano-room__equalizer.is-playing i:nth-child(4) { animation-delay: -1s; }.piano-room__equalizer.is-playing i:nth-child(5) { animation-delay: -.5s; }
+.piano-room__track { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.piano-room__track .piano-room__eyebrow { font-size: 8px; letter-spacing: 1.8px; }
+.piano-room__track strong { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; font-size: 25px; line-height: 1.2; }
+.piano-room__track-note { font-size: 10px; line-height: 1.6; color: var(--piano-muted); }
+.piano-room__audio-buttons { display: flex; align-items: center; gap: 11px; }
+.piano-room__play { display: inline-flex; gap: 9px; align-items: center; justify-content: center; min-height: 44px; min-width: 93px; padding: 11px 16px; background: var(--piano-ink); color: var(--piano-paper); font-size: 11px; }
+.piano-room__play:hover { background: #474332; }
+.piano-room__play:disabled { cursor: not-allowed; opacity: .6; }
+.piano-room__sound { display: grid; place-items: center; width: 44px; min-height: 44px; border: 1px solid var(--piano-line); color: var(--piano-gold); }
+.piano-room__sound:hover, .piano-room__sound[aria-pressed=true] { background: #f0ebdf; }
+.piano-room__audio-status { grid-column: 2 / -1; margin: 12px 0 0; font-size: 9px; line-height: 1.6; color: var(--piano-muted); min-height: 15px; }
+.piano-room__programme { display: grid; grid-template-columns: .8fr 1.2fr; column-gap: 12%; padding: 98px 0 104px; }
+.piano-room__story > .piano-room__eyebrow { margin: 0 0 20px; }
+.piano-room__story h3 { font: 400 clamp(36px, 3.6vw, 48px)/1.06 'Instrument Serif', Georgia, serif; letter-spacing: -.9px; margin: 0 0 27px; max-width: 280px; text-wrap: balance; }
+.piano-room__story > p:not(.piano-room__eyebrow) { color: var(--piano-muted); font-size: 13px; line-height: 1.95; margin: 0 0 17px; max-width: 330px; }
+.piano-room__story strong { font-weight: 500; color: var(--piano-ink); }
+.piano-room__story-note { display: flex; gap: 16px; align-items: center; max-width: 305px; margin-top: 38px; padding-top: 22px; border-top: 1px solid var(--piano-line); }
+.piano-room__story-note > span:first-child { color: var(--piano-gold); font: 34px 'Instrument Serif', Georgia, serif; }
+.piano-room__story-note > span:last-child { color: var(--piano-muted); font: italic 21px/1.3 'Instrument Serif', Georgia, serif; }
+.piano-room__repertoire-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding: 0 0 16px; border-bottom: 1px solid var(--piano-ink); }
+.piano-room__repertoire-heading h3 { font: 400 29px/1.1 'Instrument Serif', Georgia, serif; margin: 0; letter-spacing: -.4px; }
+.piano-room__repertoire-heading > span { flex-shrink: 0; color: var(--piano-gold); font-size: 9px; letter-spacing: 1px; }
+.piano-room__repertoire ol { list-style: none; margin: 0; padding: 0; }
+.piano-room__repertoire li { display: grid; grid-template-columns: 23px minmax(0, 1fr) 16px; gap: 17px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--piano-line); }
+.piano-room__piece-number { font-size: 9px; color: var(--piano-gold); font-variant-numeric: tabular-nums; align-self: start; padding-top: 4px; }
+.piano-room__composer { display: block; font-size: 8px; color: var(--piano-muted); text-transform: uppercase; letter-spacing: 1.4px; margin-bottom: 6px; }
+.piano-room__repertoire h4 { font: 400 23px/1.15 'Instrument Serif', Georgia, serif; margin: 0; letter-spacing: -.1px; }
+.piano-room__piece-star { color: var(--piano-gold); font-size: 22px; }
+.piano-room__footer { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 105px; border-top: 1px solid var(--piano-line); font-size: 9px; color: var(--piano-muted); }
+.piano-room__footer > span:nth-child(2) { font: italic 35px 'Instrument Serif', Georgia, serif; color: var(--piano-gold); }
+.piano-room__footer button { min-height: 44px; display: inline-flex; align-items: center; gap: 13px; font-size: 10px; }
+.piano-room__footer button > span { color: var(--piano-gold); font-size: 17px; }
+.piano-room__pianist-body { transform-box: fill-box; transform-origin: 42% 95%; animation: piano-sway 6.8s ease-in-out infinite alternate; }
+.piano-room__arm { transform-box: fill-box; transform-origin: 10% 15%; }
+.piano-room__arm--near { animation: piano-hands 1.7s ease-in-out infinite alternate; }
+.piano-room__arm--far { animation: piano-hands 2.3s -.8s ease-in-out infinite alternate-reverse; }
+.piano-room__stage-light { animation: piano-light 9s ease-in-out infinite alternate; }
+.piano-room__dust { animation: piano-dust 12s ease-in-out infinite alternate; }
+.piano-room:not(.is-active) *, .piano-room:not(.is-active) *::before, .piano-room:not(.is-active) *::after { animation-play-state: paused; }
+@keyframes piano-sway { from { transform: rotate(-.35deg); } to { transform: rotate(.65deg); } }
+@keyframes piano-hands { from { transform: rotate(-.5deg); } to { transform: rotate(.9deg); } }
+@keyframes piano-light { from { opacity: .7; } to { opacity: 1; } }
+@keyframes piano-dust { from { transform: translateY(4px); opacity: .15; } to { transform: translateY(-12px); opacity: .55; } }
+@keyframes piano-equalizer { from { transform: scaleY(.3); } to { transform: scaleY(1); } }
+@media (min-width: 1500px) { .piano-room__hero { min-height: 720px; }.piano-room__scene { width: 940px; right: -160px; bottom: -14px; } }
+@media (max-width: 1050px) {
+  .piano-room__inner { padding-inline: 40px; }
+  .piano-room__hero { min-height: 615px; padding-bottom: 165px; }
+  .piano-room__invitation { width: 52%; }.piano-room__invitation h2 { font-size: 65px; }
+  .piano-room__scene { width: 94%; right: -140px; bottom: 0; }
+  .piano-room__programme { column-gap: 7%; }.piano-room__player { gap: 0 19px; padding-inline: 23px; }
+  .piano-room__track strong { font-size: 23px; }
+}
+@media (max-width: 720px) {
+  .piano-room__inner { padding-inline: 25px; }
+  .piano-room__masthead { min-height: 88px; gap: 15px; }.piano-room__signature { font-size: 20px; gap: 8px; }.piano-room__signature > span { font-size: 29px; }
+  .piano-room__return { max-width: 125px; font-size: 9px; text-align: right; gap: 7px; line-height: 1.5; }
+  .piano-room__hero { display: block; min-height: 700px; padding: 57px 0 330px; }
+  .piano-room__invitation { width: min(87%, 415px); }.piano-room__invitation h2 { font-size: clamp(52px, 10.8vw, 70px); letter-spacing: -1.6px; }
+  .piano-room__invitation > .piano-room__eyebrow { margin-bottom: 23px; font-size: 8px; letter-spacing: 1.6px; }
+  .piano-room__dedication { font-size: 11px; max-width: 240px; margin-top: 19px; }.piano-room__flourish { display: none; }
+  .piano-room__scene { width: min(140%, 720px); max-width: none; right: -82px; bottom: 6px; }
+  .piano-room__scene-caption { font-size: 8px; bottom: 18px; }
+  .piano-room__player { grid-template-columns: 26px minmax(0, 1fr); gap: 0 16px; padding: 23px 19px 18px; }
+  .piano-room__equalizer { gap: 3px; }.piano-room__equalizer i { width: 2px; }
+  .piano-room__track strong { font-size: 22px; }.piano-room__track-note { font-size: 9px; }
+  .piano-room__audio-buttons { grid-column: 2; margin-top: 18px; }.piano-room__audio-status { grid-column: 1 / -1; margin-top: 16px; }
+  .piano-room__programme { grid-template-columns: 1fr; gap: 55px; padding: 62px 0 64px; }
+  .piano-room__story h3 { max-width: 290px; font-size: 43px; }.piano-room__story > p:not(.piano-room__eyebrow) { max-width: 100%; }
+  .piano-room__story-note { margin-top: 24px; max-width: 100%; }
+  .piano-room__repertoire-heading h3 { font-size: 29px; }.piano-room__repertoire h4 { font-size: 23px; }
+  .piano-room__footer { flex-wrap: wrap; padding: 20px 0; gap: 12px; }.piano-room__footer > span:first-child { width: calc(100% - 65px); }.piano-room__footer button { margin-left: auto; }
+}
+@media (max-width: 380px) {
+  .piano-room__inner { padding-inline: 21px; }.piano-room__signature { font-size: 18px; }
+  .piano-room__hero { min-height: 670px; }.piano-room__invitation { width: 96%; }.piano-room__scene { right: -73px; }
+  .piano-room__repertoire li { gap: 12px; }.piano-room__repertoire h4 { font-size: 21px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .piano-room *, .piano-room *::before, .piano-room *::after { animation: none !important; transition: none !important; }
+}

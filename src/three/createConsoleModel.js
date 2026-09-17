@@ -96,6 +96,7 @@ export function createConsoleModel() {
     shellShape.holes.push(holeFrom(roundedShape(0.082, slotHeight, 0.04), x, y, speakerAngle));
     const floor = roundSolid(`Speaker cavity ${i + 1}`, 0.14, slotHeight + 0.05, 0.038, 0.012, cavity, x, y, -0.14, 0.005);
     floor.rotation.z = speakerAngle;
+    floor.userData.dragBlocked = true;
   }
   extrude('Front shell with six recessed speaker openings', shellShape, 0.27, ivory, 0, 0, -0.035, 0.018);
   roundSolid('Case seam', 4.035, 6.475, [0.19, 0.19, 0.69, 0.22], 0.025, seamMaterial, 0, 0, -0.345, 0.025);

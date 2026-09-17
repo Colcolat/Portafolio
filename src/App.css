@@ -135,6 +135,9 @@ h1 em{color:#6b7558;font-weight:400;line-height:1.08}
 .speaker{position:absolute;right:6.4%;bottom:7%;display:flex;gap:1.7cqw;transform:rotate(-31deg)}
 .speaker i{height:15cqw;width:1.55cqw;background:#87947b;border-radius:2cqw;box-shadow:inset .5cqw .7cqw .5cqw #4c5d43aa,.4cqw .6cqw .5cqw #f7fae9aa}
 .speaker i:first-child,.speaker i:last-child{height:12cqw;margin-top:1.5cqw}
+.speaker-trigger{min-width:44px;min-height:44px;touch-action:manipulation;border-radius:12px}
+.console-motion[data-renderer=webgl] .speaker.speaker-trigger{display:flex}
+.console-motion[data-renderer=webgl] .speaker-trigger i{visibility:hidden}
 .case-serial{position:absolute;bottom:7.5%;left:7%;font:400 1.1cqw var(--mono);color:#a5af99;letter-spacing:.1cqw}
 .headphone-port{position:absolute;bottom:1.6%;left:45%;color:#c9d1bd;letter-spacing:.5cqw;font-size:2.6cqw;text-shadow:0 .3cqw #f3f7e888}
 .console-shadow{position:absolute;width:70%;height:38px;left:17%;bottom:8px;background:#657650;filter:blur(27px);border-radius:100%;opacity:.12;z-index:0;transform:rotate(-8deg)}
