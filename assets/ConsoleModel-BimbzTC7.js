@@ -1,4 +1,4 @@
-import{r as Si,j as oc,C as lc}from"./index-BuVZeA1s.js";/**
+import{r as Si,j as oc,C as lc}from"./index-BTpmJBiS.js";/**
  * @license
  * Copyright 2010-2026 Three.js Authors
  * SPDX-License-Identifier: MIT
