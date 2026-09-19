@@ -17,6 +17,8 @@ import { COVER_FALL_DURATION, createRearCover, rearCoverReducer } from './hooks/
 import useRadioAudio from './hooks/useRadioAudio';
 import RadioJourney from './components/RadioJourney';
 import RadioVisualizer from './components/RadioVisualizer';
+import { TinyVisitor } from './components/TinyVisitor';
+import useIdleVisitor from './hooks/useIdleVisitor';
 
 // Keep the working CSS console if the optional 3D chunk cannot be loaded.
 const ConsoleModel = lazy(() => import('./components/ConsoleModel').catch(() => ({ default: () => null })));
@@ -179,6 +181,15 @@ export default function App() {
   const consoleResetRef = useRef(null);
   const consoleFlipRef = useRef(null);
   const [backFacing, setBackFacing] = useState(false);
+  const visitorEnabled = powered && section === 'menu' && !reader && !secretsView && !backFacing && !radioActive;
+  const visitor = useIdleVisitor({ enabled: visitorEnabled, targetRef: consoleMotionRef });
+  const greetVisitor = () => {
+    if (!visitorEnabled || !visitor.visible) return;
+    visitor.reset();
+    codeRef.current.reset(); cartridgeTapsRef.current.reset(); radioTapsRef.current.reset();
+    unlock('visitor');
+    setSecretsView('visitor');
+  };
   const [rearCover, dispatchRearCover] = useReducer(rearCoverReducer, undefined, createRearCover);
   useEffect(() => {
     if (rearCover.phase !== 'falling') return undefined;
@@ -362,7 +373,7 @@ export default function App() {
   };
   useEffect(() => {
     const handleKey = (event) => {
-      const nativeConsoleActivation = event.target?.closest?.('.console-brand-mark, .lcd-open, .speaker-trigger') && ['Enter', ' '].includes(event.key);
+      const nativeConsoleActivation = event.target?.closest?.('.console-brand-mark, .lcd-open, .speaker-trigger, .tiny-visitor-trigger') && ['Enter', ' '].includes(event.key);
       if (radioActive || reader || secretsView || backFacing || nativeConsoleActivation || event.target?.closest?.('.console-orbit-tools, .console-rear') || isSecretInputBlocked(event)) { codeRef.current.reset(); return; }
       const key = event.key.toLowerCase();
       const token = keyboardKonamiToken(event);
@@ -428,7 +439,10 @@ export default function App() {
                 {radioActive ? <RadioVisualizer t={t} status={radioAudio.status} readSpectrum={radioAudio.readSpectrum} active={!portfolioHidden && radioScene === 'radio'} /> : powered ? <div className="screen-content" key={section}>
                   <div className="lcd-topline"><span>{screenTitle}</span><span>{section === 'menu' ? '01' : section === 'game' ? pad(game.score) : `${index + 1}/${count}`}</span></div>
                   {section === 'secret' ? <div className="secret-lcd"><span className="secret-unlocked">✦ {t('SECRET UNLOCKED')} ✦</span>{lcdSecretId === 'cartridge' ? <CartridgeArt /> : <DeveloperRoomArt />}<h2>{t(lcdSecret.title)}</h2><button className="lcd-open" onClick={primary}>{t(lcdSecretId === 'cartridge' ? 'A: LOAD CARTRIDGE' : 'A: ENTER THE ROOM')}<span>↗</span></button></div> : <>
-                  {section === 'menu' ? <div className="screen-menu">{sections.map((item, i) => <button key={item.id} className={selection === i ? 'active' : ''} aria-current={selection === i ? 'true' : undefined} onMouseEnter={() => setSelection(i)} onClick={() => chooseSection(item.id)}><span>{selection === i ? '▶' : ' '}</span>{t(item.label)}<small>{pad(i + 1)}</small></button>)}</div> : section === 'game' ? <div className="game-area"><svg className="snake-board" viewBox="0 0 120 120" role="img" aria-label={t('Snake board, score {score}', { score: game.score })}><defs><pattern id="game-grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0v10" fill="none" stroke="currentColor" strokeOpacity=".08" strokeWidth=".5" /></pattern></defs><rect width="120" height="120" fill="url(#game-grid)" />{game.snake.map((cell, i) => <rect key={`${cell.x}-${cell.y}`} x={cell.x * 10 + 1} y={cell.y * 10 + 1} width="8" height="8" fill="currentColor" opacity={i === 0 ? 1 : 0.7} />)}<rect x={game.food.x * 10 + 2} y={game.food.y * 10 + 2} width="6" height="6" fill="currentColor" /></svg>{game.status !== 'playing' && <div className="game-overlay"><strong>{t({ready: 'BYTE SNAKE', paused: 'TAKE A BREATHER', over: 'ONE MORE TRY?', won: 'YOU DID IT!'}[game.status])}</strong><p>{game.status === 'ready' ? t('Collect bytes. Keep growing.') : t('SCORE {score} · BEST {best}', { score: pad(game.score), best: pad(game.highScore) })}</p><button onClick={primary}>{t(game.status === 'paused' ? 'A: RESUME' : 'A: LET’S PLAY')}</button></div>}<span className="game-best">{t('BEST {best} · A: PAUSE', { best: pad(game.highScore) })}</span></div> : <div className="lcd-main" key={`${section}-${index}`}>
+                  {section === 'menu' ? <div className="lcd-menu-area">
+                    <div className="screen-menu">{sections.map((item, i) => <button key={item.id} className={selection === i ? 'active' : ''} aria-current={selection === i ? 'true' : undefined} onMouseEnter={() => setSelection(i)} onClick={() => chooseSection(item.id)}><span>{selection === i ? '▶' : ' '}</span>{t(item.label)}<small>{pad(i + 1)}</small></button>)}</div>
+                    <div className="lcd-visitor-slot">{visitor.visible && <TinyVisitor t={t} onGreet={greetVisitor} />}</div>
+                  </div> : section === 'game' ? <div className="game-area"><svg className="snake-board" viewBox="0 0 120 120" role="img" aria-label={t('Snake board, score {score}', { score: game.score })}><defs><pattern id="game-grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0v10" fill="none" stroke="currentColor" strokeOpacity=".08" strokeWidth=".5" /></pattern></defs><rect width="120" height="120" fill="url(#game-grid)" />{game.snake.map((cell, i) => <rect key={`${cell.x}-${cell.y}`} x={cell.x * 10 + 1} y={cell.y * 10 + 1} width="8" height="8" fill="currentColor" opacity={i === 0 ? 1 : 0.7} />)}<rect x={game.food.x * 10 + 2} y={game.food.y * 10 + 2} width="6" height="6" fill="currentColor" /></svg>{game.status !== 'playing' && <div className="game-overlay"><strong>{t({ready: 'BYTE SNAKE', paused: 'TAKE A BREATHER', over: 'ONE MORE TRY?', won: 'YOU DID IT!'}[game.status])}</strong><p>{game.status === 'ready' ? t('Collect bytes. Keep growing.') : t('SCORE {score} · BEST {best}', { score: pad(game.score), best: pad(game.highScore) })}</p><button onClick={primary}>{t(game.status === 'paused' ? 'A: RESUME' : 'A: LET’S PLAY')}</button></div>}<span className="game-best">{t('BEST {best} · A: PAUSE', { best: pad(game.highScore) })}</span></div> : <div className="lcd-main" key={`${section}-${index}`}>
                     <div className="lcd-art"><span className="pixel-spark spark-one">✦</span><PixelArt name={section === 'projects' ? projectIcons[index] : selected?.icon} /><span className="pixel-spark spark-two">+</span></div>
                     <h2>{section === 'projects' ? currentProject.title : section === 'certificates' ? currentCertificate.title : t(section === 'skills' ? currentSkills.title : section === 'about' ? 'HELLO, I’M JUAN.' : section === 'contact' ? 'LET’S BUILD SOMETHING.' : 'LITTLE MOMENTS.')}</h2>
                     <span className="lcd-subtitle">{section === 'projects' ? currentProject.tech.slice(0, 3).join(' · ') : section === 'certificates' ? currentCertificate.issuer : section === 'skills' ? t('MODULE {number}', { number: pad(index + 1) }) : t(section === 'about' ? 'SOFTWARE ENGINEER' : section === 'contact' ? 'PRESS A TO SAY HELLO' : 'THE ACTIVITY ARCHIVE')}</span>
@@ -457,6 +471,7 @@ export default function App() {
         <div className="console-orbit-tools"><span>{t('Drag the case to rotate')}</span><button type="button" onClick={flipConsole} aria-label={t(backFacing ? 'Show the front of the console' : 'Show the back of the console')}>⇄ {t(backFacing ? 'Front view' : 'Turn over')}</button><button type="button" onClick={resetConsole} aria-label={t('Reset console view')}>↺ {t('Reset view')}</button>{(backFacing || rearCover.removedScrews.length > 0) && <button type="button" aria-disabled={rearCover.removedScrews.length === 0} onClick={() => dispatchRearCover({ type: 'restore' })}>{t('Restore cover')}</button>}</div>
         <p className="sr-only" role="status">{rearCover.phase === 'open' ? t('Cover removed. An inner panel is now accessible.') : rearCover.phase === 'falling' ? t('All four screws removed. The cover is falling.') : rearCover.removedScrews.length > 0 ? t('{count} of 4 screws removed.', { count: rearCover.removedScrews.length }) : ''}</p>
         <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
+        <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{visitor.visible && t('A tiny visitor is waiting beside the menu. Say hello to discover it.')}</p>
       </section>
 
       <aside className="play-guide">

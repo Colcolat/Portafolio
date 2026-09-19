@@ -10,6 +10,7 @@ Los descubrimientos existentes se conservan en `pocketfolio.secrets.v1`.
 
 - [x] Cartucho secreto: cinco pulsaciones consecutivas sobre el logotipo «pocket» de la consola revelan un cartucho en la pantalla; abre un minijuego de memoria de cuatro parejas.
 - [x] Radio de bolsillo: tres pulsaciones consecutivas en el altavoz abren una frecuencia musical y el recorrido secreto hacia la sala de piano.
+- [x] Visitante diminuto: Bit aparece tras esperar en el menú; saludarlo registra el descubrimiento.
 
 ## Entregado: rediseño del descubrimiento del backend
 
@@ -58,11 +59,22 @@ Las grabaciones proporcionadas se alojan en `public/audio/pocket-moonlight.mp3` 
 - [x] Detener la animación del espectro al pausar, desactivar la escena u ocultar la pestaña. Con movimiento reducido se mantiene un fotograma estático.
 - [x] Mostrar controles compactos durante el pasaje cuando la tarjeta ya desapareció; conservar pausa manual, silencio global, Escape y regreso al portafolio.
 
-Seguimiento: estas mejoras refinan la radio ya entregada, no crean otro secreto ni alteran los descubrimientos guardados. La colección sigue en **cuatro secretos**, con **dos secretos nuevos pendientes**.
+Seguimiento: estas mejoras refinan la radio ya entregada, no crean otro secreto ni alteran los descubrimientos guardados.
+
+## Entregado: visitante diminuto
+
+- [x] Abrir el menú inicial con **START / Enter** y esperar **20 segundos** sin actividad. Sólo cuenta el tiempo con la consola encendida, de frente y al menos un 35 % visible, en una pestaña visible y con foco.
+- [x] Hacer aparecer a **Bit**, una mascota pixelada original, en su propio margen del menú. No cambia la selección, no reproduce sonidos y no roba el foco.
+- [x] Permitir acercar el cursor al visitante sin que desaparezca, o llegar a él con Tab/Mayús+Tab. Pulsarlo con ratón o tacto, o enfocarlo y activar Enter/Espacio, lo saluda y descubre el secreto `visitor`. Verlo aparecer no basta para registrarlo.
+- [x] Reiniciar la espera al interactuar en otro lugar. Salir del menú, apagar o girar la consola, abrir un diálogo o la radio, ocultar la pestaña o perder el foco descarta la espera anterior.
+- [x] Mantener una versión estática con movimiento reducido. La aparición no interrumpe la navegación ni activa controles de la consola.
+- [x] Conservar los cuatro descubrimientos anteriores y añadir el visitante como quinto secreto, sin duplicar saludos. Sólo se guarda el descubrimiento: recargar no restaura su aparición ni lo desbloquea automáticamente.
+- [x] Permitir volver a su recompensa desde **Secretos encontrados**. El botón para saludar a Bit es decorativo y no suma otro descubrimiento.
+
+La colección cuenta con **cinco secretos**, con **un secreto nuevo pendiente**.
 
 ## Después
 
-Pendientes: dos secretos nuevos.
+Pendiente: un secreto nuevo.
 
-- [ ] Visitante diminuto: personaje pixelado tras permanecer en el menú, sin interrumpir la navegación.
 - [ ] Recompensa de Byte Snake: desbloqueo por puntuación, con recompensa visual por definir.

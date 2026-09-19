@@ -28,4 +28,11 @@ export const secretCatalog = [
     description: 'A small frequency, a little piece of my soul.',
     hint: 'Some sounds are waiting behind the little grille.',
   },
+  {
+    id: 'visitor',
+    view: 'visitor',
+    title: 'The tiny visitor',
+    description: 'A quiet friend between adventures.',
+    hint: 'Some company arrives when the little menu has time to breathe.',
+  },
 ];

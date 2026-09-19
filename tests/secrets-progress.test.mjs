@@ -17,11 +17,32 @@ function memoryStorage(value = null) {
   };
 }
 
-test('secret catalog counts only the four implemented discoveries with separate views and hints', () => {
-  assert.deepEqual(secretCatalog.map(secret => secret.id), ['developer-room', 'backend', 'cartridge', 'radio']);
+test('secret catalog counts only the five implemented discoveries with separate views and hints', () => {
+  assert.deepEqual(secretCatalog.map(secret => secret.id), ['developer-room', 'backend', 'cartridge', 'radio', 'visitor']);
   assert.equal(new Set(secretCatalog.map(secret => secret.id)).size, secretCatalog.length);
   assert.equal(new Set(secretCatalog.map(secret => secret.view)).size, secretCatalog.length);
   assert.ok(secretCatalog.every(secret => secret.title && secret.description && secret.hint));
+});
+
+test('the visitor preserves all four earlier discoveries and never duplicates a greeting', () => {
+  const earlier = ['developer-room', 'backend', 'cartridge', 'radio'];
+  const storage = memoryStorage(JSON.stringify(earlier));
+  const before = readSecrets(storage);
+  const complete = unlockSecret(before, 'visitor');
+  assert.deepEqual(before, earlier);
+  assert.deepEqual(complete, [...earlier, 'visitor']);
+  assert.strictEqual(unlockSecret(complete, 'visitor'), complete);
+  saveSecrets(complete, storage);
+  assert.deepEqual(readSecrets(storage), complete);
+  // Only the greeting's discovery is saved, not a timer or a visible visitor.
+  assert.equal(storage.getItem(secretsStorageKey), JSON.stringify(complete));
+});
+
+test('the visitor can be discovered first while saved IDs retain catalog order', () => {
+  assert.deepEqual(unlockSecret([], 'visitor'), ['visitor']);
+  assert.deepEqual(unlockSecret(['visitor'], 'radio'), ['radio', 'visitor']);
+  const storage = memoryStorage('["visitor","unknown","visitor","radio","cartridge","backend","developer-room"]');
+  assert.deepEqual(readSecrets(storage), ['developer-room', 'backend', 'cartridge', 'radio', 'visitor']);
 });
 
 test('the radio preserves all earlier discoveries and does not duplicate a return visit', () => {

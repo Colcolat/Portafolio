@@ -85,6 +85,21 @@ test('the cartridge discovery and memory game have Spanish copy without exposing
   }
 });
 
+test('the tiny visitor and its greeting are translated without renaming Bit', () => {
+  const keys = ['The tiny visitor', 'A quiet friend between adventures.',
+    'Some company arrives when the little menu has time to breathe.', 'Say hello to Bit',
+    'A tiny visitor is waiting beside the menu. Say hello to discover it.', 'A QUIET ENCOUNTER',
+    'A little company, between adventures.',
+    'Meet Bit. A quiet little visitor who only appears when this world has a moment to breathe.',
+    'Thanks for slowing down and saying hello.', 'Wave to Bit', 'Bit waves back.'];
+  for (const key of keys) {
+    assert.ok(spanishTranslations[key], key);
+    assert.notEqual(translate(key, 'es'), key);
+    assert.equal(translate(key, 'en'), key);
+  }
+  assert.equal(translate('BIT / 01', 'es'), 'BIT / 01');
+});
+
 test('translated templates preserve every data placeholder', () => {
   const placeholders = text => [...text.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort();
   for (const [english, spanish] of Object.entries(spanishTranslations)) {
