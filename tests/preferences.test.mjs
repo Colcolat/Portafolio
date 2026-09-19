@@ -110,6 +110,21 @@ test('translated templates preserve every data placeholder', () => {
   assert.equal(translate('MODULE {number}', 'en', { number: '02' }), 'MODULE 02');
 });
 
+test('the startup screen, final trophy and completed collection have Spanish copy', () => {
+  for (const key of ['POCKET EDITION', 'A LITTLE WORLD TO EXPLORE', 'PRESS START TO BEGIN',
+    'Byte keeper', 'Eight bytes and a little arcade trophy.', 'A little side quest rewards a growing appetite.',
+    'POCKET ARCADE / 08', 'A small reward for a curious player.', 'Eight bytes. One little victory.',
+    'You collected eight bytes in a single round of Byte Snake. This little trophy is yours.',
+    'Thanks for playing in my little world.', 'PERSONAL BESTS START SMALL.', 'VIEW TROPHY',
+    'Byte keeper unlocked. Pause to view your trophy.',
+    'Secret found: Byte keeper. Your trophy is ready; keep playing or open it when you like.',
+    'Discoveries are saved in this browser. Found something? You can always visit it again.']) {
+    assert.ok(spanishTranslations[key], key);
+    assert.notEqual(translate(key, 'es'), key);
+    assert.equal(translate(key, 'en'), key);
+  }
+});
+
 test('radio, concert story and accessible playback controls have Spanish copy', () => {
   const keys = ['Pocket radio', 'Console speaker', 'Journey controls', 'Pocket radio audio visualizer',
     'Moonlight', 'Radio ready', 'On air', 'Radio paused', 'Sound off', 'Press play on the radio card',

@@ -21,10 +21,11 @@ The active application uses:
 
 ## Features
 
+- A fresh **Press START to begin** title screen on every page load. Its button, physical START control or Enter opens the section-selection menu without starting a game; A/Z provides an alternative. Arrows, B and Select leave the title screen in place. This entrance state is not persisted.
 - Pointer, touch and keyboard controls: arrow keys navigate, Z selects, X goes back, Enter opens the menu. Select cycles sections. Keyboard shortcuts leave text fields and the reading dialog alone.
 - A full-portfolio dialog with native focus containment, Escape to close and focus restoration.
 - Three original projects, eleven certificates, twenty-four skills and downloadable English/Spanish CVs.
-- Byte Snake with pause, restart and a locally saved high score. A starts/pauses, and the directional pad steers.
+- Byte Snake with pause, restart and a locally saved high score. A starts/pauses, and the directional pad steers. Collect eight food bytes in one round to earn its secret arcade trophy without interrupting play.
 - A **Secrets found** collection at the bottom of the page, with locally saved, deduplicated discoveries. Undiscovered entries remain anonymous, and found rewards can be revisited. Only implemented secrets count toward the total; new ones will be introduced individually.
 - Synthesized button sounds, on by default after a user interaction, and a working power switch. Sound can be muted from the header.
 - English/Spanish interface and a light/dark appearance switch. Sound, language and appearance choices are saved locally; the site still works if browser storage is blocked. Names, official credentials and original files are preserved.
@@ -86,7 +87,9 @@ Two original data details are intentionally preserved: the English for Business 
 - **The tiny visitor:** open the home menu with **START / Enter** and leave it still for **20 seconds**. The console must be powered on, facing forward and at least 35% visible in a visible, focused browser tab. **Bit**, an original pixel mascot, appears in its own menu margin without changing the selected item, playing a sound or stealing focus. Moving the pointer toward Bit after it appears does not send it away. Click/tap Bit or focus it and press Enter/Space to say hello and register this fifth discovery; its appearance alone does not count.
 - Activity elsewhere restarts the visitor's wait; once Bit appears, Tab/Shift+Tab also lets keyboard users reach its button without dismissing it. Leaving the menu, turning the console off or over, opening a dialog or the radio, or hiding/unfocusing the tab resets it. Reduced motion keeps Bit static. The reward can be revisited from **Secrets found**, where **Wave to Bit** is a cosmetic interaction that never increments progress. Reloading retains the discovery but does not reveal or unlock the visitor automatically.
 
-Five secrets are implemented. The agreed implementation queue and the remaining Byte Snake reward are in [docs/EASTER_EGGS.md](docs/EASTER_EGGS.md).
+- **Byte keeper:** collect **eight food bytes in one current round of Byte Snake**. Reaching the threshold silently records the sixth discovery, `byte-reward`, with a polite accessible announcement and a small trophy star, but no dialog, automatic pause or board resize. Pause with A, or finish the round, to use **View trophy** alongside the normal Resume/Play again control. The reward can also be revisited through **Secrets found**. A previously stored high score does not unlock it; the eight bytes must be earned together during a new round. Saved discoveries keep the existing `pocketfolio.secrets.v1` storage key and preserve all five earlier secrets.
+
+All six agreed secrets are implemented; no new secrets remain in this sequence. The next refinement is the **developer-room remaster**, tracked in [docs/EASTER_EGGS.md](docs/EASTER_EGGS.md). It is pending, not part of the current implementation: keep the Konami trigger and existing discovery, fade the console into a full desk pixel-art scene based on a future photograph from Juan, and add an LCD/scanline treatment, a small ray of light, falling pixel dust and the supplied title-screen music. The reference artwork is a style guide, not a photograph of Juan's desk. The new desk image and soundtrack have not been imported into the application.
 
 ## Acknowledgements & Credits
 

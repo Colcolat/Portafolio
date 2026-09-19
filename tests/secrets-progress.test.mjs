@@ -17,11 +17,32 @@ function memoryStorage(value = null) {
   };
 }
 
-test('secret catalog counts only the five implemented discoveries with separate views and hints', () => {
-  assert.deepEqual(secretCatalog.map(secret => secret.id), ['developer-room', 'backend', 'cartridge', 'radio', 'visitor']);
+test('secret catalog counts only the six implemented discoveries with separate views and hints', () => {
+  assert.deepEqual(secretCatalog.map(secret => secret.id), ['developer-room', 'backend', 'cartridge', 'radio', 'visitor', 'byte-reward']);
   assert.equal(new Set(secretCatalog.map(secret => secret.id)).size, secretCatalog.length);
   assert.equal(new Set(secretCatalog.map(secret => secret.view)).size, secretCatalog.length);
   assert.ok(secretCatalog.every(secret => secret.title && secret.description && secret.hint));
+});
+
+test('the Byte Snake reward preserves all five earlier discoveries and never duplicates a trophy', () => {
+  const earlier = ['developer-room', 'backend', 'cartridge', 'radio', 'visitor'];
+  const storage = memoryStorage(JSON.stringify(earlier));
+  const before = readSecrets(storage);
+  const complete = unlockSecret(before, 'byte-reward');
+  assert.equal(secretsStorageKey, 'pocketfolio.secrets.v1');
+  assert.deepEqual(before, earlier);
+  assert.deepEqual(complete, [...earlier, 'byte-reward']);
+  assert.strictEqual(unlockSecret(complete, 'byte-reward'), complete);
+  saveSecrets(complete, storage);
+  assert.deepEqual(readSecrets(storage), complete);
+  assert.equal(storage.getItem(secretsStorageKey), JSON.stringify(complete));
+});
+
+test('the Byte Snake reward can be discovered first while saved IDs retain catalog order', () => {
+  assert.deepEqual(unlockSecret([], 'byte-reward'), ['byte-reward']);
+  assert.deepEqual(unlockSecret(['byte-reward'], 'visitor'), ['visitor', 'byte-reward']);
+  const storage = memoryStorage('["byte-reward","visitor","unknown","byte-reward","radio","cartridge","backend","developer-room"]');
+  assert.deepEqual(readSecrets(storage), ['developer-room', 'backend', 'cartridge', 'radio', 'visitor', 'byte-reward']);
 });
 
 test('the visitor preserves all four earlier discoveries and never duplicates a greeting', () => {

@@ -1,0 +1,98 @@
+.byte-trophy-art {
+  --byte-light: #c6d39c;
+  --byte-mid: #9caf75;
+  --byte-shadow: #708650;
+  --byte-dark: #344620;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  image-rendering: pixelated;
+}
+
+.byte-reward {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+  padding: 10px 0 4px;
+  color: var(--ink);
+}
+
+.byte-reward__scene { min-width: 0; margin: 0; }
+
+.byte-reward__frame {
+  position: relative;
+  padding: 6px;
+  border: 1px solid var(--olive);
+  background: var(--paper);
+  box-shadow: 5px 5px 0 var(--line);
+  animation: byte-trophy-arrive .38s steps(5, end) both;
+}
+
+.byte-reward__scene figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  font: 7px/1.7 var(--mono);
+  letter-spacing: .5px;
+  color: var(--olive);
+}
+
+.byte-reward__scene figcaption > span:last-child { font-size: 13px; }
+.byte-reward__notes { min-width: 0; }
+
+.byte-reward__eyebrow {
+  margin: 0 0 13px;
+  color: var(--olive);
+  font: 7px/1.8 var(--mono);
+  letter-spacing: .2px;
+  text-transform: uppercase;
+}
+
+.byte-reward__heading {
+  margin: 0 0 15px;
+  font: 400 32px/1.03 'Instrument Serif', Georgia, serif;
+  letter-spacing: -.6px;
+  text-wrap: balance;
+}
+
+.byte-reward__story {
+  margin: 0 0 19px;
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.byte-reward__thanks {
+  margin: 0 0 22px;
+  border-left: 2px solid var(--olive);
+  padding-left: 12px;
+  font: italic 22px/1.2 'Instrument Serif', Georgia, serif;
+}
+
+.byte-reward__stamp {
+  margin: 0;
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+  color: var(--olive);
+  font: 7px/1.8 var(--mono);
+  letter-spacing: .6px;
+}
+
+@keyframes byte-trophy-arrive {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .byte-reward { grid-template-columns: minmax(0, 1fr); gap: 25px; }
+  .byte-reward__scene { width: min(100%, 320px); margin-inline: auto; }
+  .byte-reward__heading { font-size: 31px; max-width: 280px; }
+  .byte-reward__thanks { margin-bottom: 19px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .byte-reward__frame { animation: none; }
+}

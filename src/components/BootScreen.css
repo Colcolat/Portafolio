@@ -1,0 +1,13 @@
+.boot-screen{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3cqw 2.5cqw;color:var(--lcd-ink);text-align:center;animation:lcd-on .25s steps(3)}
+.boot-edition{align-self:stretch;display:flex;justify-content:space-between;font-size:1.45cqw;letter-spacing:.12cqw;padding-bottom:1.7cqw;border-bottom:.2cqw solid #54663035;margin-bottom:auto}
+.boot-mark{display:flex;align-items:center;justify-content:center;gap:8cqw;margin:2.6cqw 0 1.7cqw}
+.boot-mark>.pixel-art{width:10cqw;height:10cqw}
+.boot-mark>span{font-size:2.2cqw;opacity:.55}
+.lcd .boot-screen h2{font:400 6.5cqw/1.1 var(--mono);letter-spacing:-.35cqw;text-transform:none;margin:0 0 3cqw}
+.boot-screen h2>span{display:block;font:400 1.45cqw/1.7 var(--mono);letter-spacing:.12cqw;margin-top:1.6cqw}
+.boot-start{display:flex;align-items:center;justify-content:center;gap:1.7cqw;min-height:44px;width:100%;max-width:49cqw;border:.35cqw solid currentColor;padding:1.7cqw 1.2cqw;box-shadow:.6cqw .6cqw 0 #41542d30;font:400 2cqw/1.4 var(--mono);touch-action:manipulation;transition:background .15s,color .15s}
+.boot-start:hover,.boot-start:focus-visible{background:#41542d;color:#b4c581;outline:none}
+.boot-start:active{box-shadow:none;transform:translate(.3cqw,.3cqw)}
+.boot-start>span{font-size:1.65cqw}
+.boot-hint{font-size:1.3cqw;letter-spacing:.3cqw;margin-top:auto;padding-top:2.5cqw;opacity:.7}
+@media(prefers-reduced-motion:reduce){.boot-screen{animation:none}.boot-start{transition:none}}

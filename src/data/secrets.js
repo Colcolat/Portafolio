@@ -35,4 +35,11 @@ export const secretCatalog = [
     description: 'A quiet friend between adventures.',
     hint: 'Some company arrives when the little menu has time to breathe.',
   },
+  {
+    id: 'byte-reward',
+    view: 'byte-reward',
+    title: 'Byte keeper',
+    description: 'Eight bytes and a little arcade trophy.',
+    hint: 'A little side quest rewards a growing appetite.',
+  },
 ];
