@@ -1,5 +1,15 @@
 // Presentation-only translations. Original project and credential data stays intact.
 export const spanishTranslations = {
+  'A little sunlight on the workbench.': 'Un poco de sol sobre el escritorio.',
+  'A little moonlight on the workbench.': 'Un poco de luz lunar sobre el escritorio.',
+  'SECRET FOUND': 'SECRETO ENCONTRADO',
+  'Entering the room…': 'Entrando al cuarto…',
+  'The room image could not load. You can still listen to the music.': 'No se pudo cargar la imagen del cuarto. Aún puedes escuchar la música.',
+  'My desk in pixel art: a white computer tower, monitor, keyboard, microphone and headphones beside the window blinds.': 'Mi escritorio en pixel art: una torre blanca, monitor, teclado, micrófono y audífonos junto a las persianas.',
+  'Meet the person behind the desk': 'Conoce a quien está detrás del escritorio',
+  'Room controls': 'Controles del cuarto',
+  'Pause room effects': 'Pausar efectos',
+  'Resume room effects': 'Reanudar efectos',
   'Pocket radio': 'Radio de bolsillo',
   'Journey controls': 'Controles del recorrido',
   'Pocket radio audio visualizer': 'Visualizador de audio de la radio de bolsillo',

@@ -87,16 +87,19 @@ La colección cuenta con **seis secretos implementados**. Quedan **cero secretos
 - [x] Su botón, el control físico **START** o **Enter** llevan directamente al menú de selección de secciones, sin iniciar automáticamente Byte Snake. **A / Z** también permite comenzar; las flechas, **B** y **SELECT** conservan la pantalla inicial.
 - [x] No guardar este estado de entrada: aparece de nuevo al recargar y no cambia los secretos ni las preferencias conservadas.
 
-## Pendiente: remaster de la habitación del desarrollador
+## Entregado: remaster de la habitación del desarrollador
 
-Solicitado el 19 de septiembre de 2026. Se realizará después de terminar el sexto secreto y al refinar los existentes; **todavía no está implementado**.
+Solicitado el 19 de septiembre de 2026. La habitación utiliza las dos versiones del pixel art del escritorio real proporcionadas por Juan, conservadas sin modificar.
 
-- [ ] Conservar el código Konami como acceso y el identificador `developer-room`. Es un rediseño del secreto actual, no un séptimo descubrimiento.
-- [ ] Sustituir la pequeña recompensa de la consola por una transición en la que la consola se desvanece poco a poco y aparece una escena pixel art del escritorio personal de Juan.
-- [ ] Crear el pixel art a partir de la **fotografía del escritorio que Juan enviará más adelante**. Los adjuntos actuales son referencias de estilo; no representan su escritorio ni sustituyen esa fotografía.
-- [ ] Aplicar una estética de pantalla retro con paleta verde, líneas de barrido y textura LCD semejante a la referencia, manteniendo el lenguaje visual del portafolio.
-- [ ] Iluminar el cuarto con un pequeño rayo de luz y diminutos píxeles de polvo que caen. Respetar movimiento reducido y conservar una salida accesible de la escena.
-- [ ] Reproducir de fondo la melodía adjunta: `Title Screen Please, don't touch anything OST.mp3`. Es una referencia pendiente: no se copia, importa ni reproduce en esta entrega.
-- [ ] Coordinar el audio futuro con el silencio global y las otras escenas para evitar reproducciones simultáneas; conservar los descubrimientos existentes al sustituir la presentación de la habitación.
+- [x] Conservar el código Konami como acceso y el identificador `developer-room`. Es un rediseño del secreto actual, no un séptimo descubrimiento.
+- [x] Sustituir la pequeña recompensa de la consola por una transición en la que la consola se desvanece poco a poco y aparece una escena pixel art del escritorio personal de Juan.
+- [x] Integrar el arte diurno en modo claro (`public/images/developer-desk-day.png`) y el nocturno en modo oscuro (`public/images/developer-desk-night.jpg`). La elección sigue la preferencia del portafolio, no la hora del dispositivo.
+- [x] Aplicar líneas de barrido y una viñeta suave sobre las imágenes, con paleta verde clara durante el día y tonos fríos en la noche, manteniendo el lenguaje visual del portafolio.
+- [x] Iluminar el cuarto con un pequeño rayo solar en modo claro o luz lunar fría y tenue en modo oscuro, y diminutos píxeles de polvo que caen. Respetar movimiento reducido y conservar salida accesible con botón o Escape.
+- [x] Permitir alternar el tema desde el cuarto, conservando el tema global, la música y la pausa manual. Permitir pausar los efectos sin silenciar la melodía.
+- [x] Integrar la melodía adjunta en `public/audio/developer-room.mp3`, sin cargarla antes de una visita explícita. Pausa manual, silencio y reanudación comprobados en navegador local.
+- [x] Coordinar el audio con el silencio global y las otras escenas para evitar reproducciones simultáneas; conservar los descubrimientos existentes al sustituir la presentación de la habitación.
 
-Dependencia pendiente: recibir la foto del escritorio antes de crear su arte definitivo. Esto no bloquea la entrega de Byte Snake ni la pantalla de inicio.
+Verificado: selección y carga de ambas imágenes, dimensiones originales, escritorio y móvil de 390 × 844 sin desbordamiento horizontal, Konami, reentrada desde la colección, Escape, recuperación del foco, silencio y pausa conservada al cambiar de tema. La animación es CSS, se pausa al ocultar la pestaña y se desactiva con `prefers-reduced-motion`. Las 180 pruebas automatizadas pasan. La colección sigue teniendo seis secretos; no se modifica `main`.
+
+El arte fue generado externamente y entregado por Juan; no se utilizó la alternativa de pago por API. La foto original no se publica. Detalles de archivos y mantenimiento en [DEVELOPER_ROOM.md](DEVELOPER_ROOM.md).

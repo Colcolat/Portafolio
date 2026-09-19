@@ -9,7 +9,8 @@ import useSecrets from './hooks/useSecrets';
 import { createKonamiMatcher, keyboardKonamiToken, isSecretInputBlocked } from './hooks/konamiCode';
 import { secretCatalog } from './data/secrets';
 import SecretsDialog from './components/SecretsDialog';
-import { DeveloperRoomArt } from './components/DeveloperRoom';
+import DeveloperScene from './components/DeveloperScene';
+import useDeveloperAudio from './hooks/useDeveloperAudio';
 import { CartridgeArt } from './components/SecretCartridge';
 import { createSecretTapMatcher } from './hooks/secretTaps';
 import RearConsole from './components/RearConsole';
@@ -157,6 +158,7 @@ export default function App() {
   const [reader, setReader] = useState(null);
   const [secretsView, setSecretsView] = useState(null);
   const [radioActive, setRadioActive] = useState(false);
+  const [developerActive, setDeveloperActive] = useState(false);
   const [radioScene, setRadioScene] = useState('radio');
   const [portfolioHidden, setPortfolioHidden] = useState(false);
   const portfolioSurfaceRef = useRef(null);
@@ -164,7 +166,7 @@ export default function App() {
   const radioReturnFocus = useRef(null);
   const radioTapsRef = useRef(null);
   if (!radioTapsRef.current) radioTapsRef.current = createSecretTapMatcher({ count: 3 });
-  const [lcdSecretId, setLcdSecretId] = useState('developer-room');
+  const [lcdSecretId, setLcdSecretId] = useState('cartridge');
   const lcdSecret = secretCatalog.find(secret => secret.id === lcdSecretId);
   const { foundIds, unlock } = useSecrets();
   const codeRef = useRef(null);
@@ -175,6 +177,8 @@ export default function App() {
   const { sound, setSound, language, setLanguage, theme, setTheme } = usePreferences();
   const radioAudio = useRadioAudio({ active: radioActive, scene: radioScene, sound });
   const stopRadioAudio = radioAudio.stop;
+  const developerAudio = useDeveloperAudio({ active: developerActive, sound });
+  const { start: startDeveloperAudio, stop: stopDeveloperAudio } = developerAudio;
   const t = useCallback((text, values) => translate(text, language, values), [language]);
   const [pressed, setPressed] = useState('');
   const pressTimer = useRef(null);
@@ -184,7 +188,7 @@ export default function App() {
   const consoleResetRef = useRef(null);
   const consoleFlipRef = useRef(null);
   const [backFacing, setBackFacing] = useState(false);
-  const visitorEnabled = powered && section === 'menu' && !reader && !secretsView && !backFacing && !radioActive;
+  const visitorEnabled = powered && section === 'menu' && !reader && !secretsView && !backFacing && !radioActive && !developerActive;
   const visitor = useIdleVisitor({ enabled: visitorEnabled, targetRef: consoleMotionRef });
   const greetVisitor = () => {
     if (!visitorEnabled || !visitor.visible) return;
@@ -213,7 +217,7 @@ export default function App() {
     else setBackFacing(value => !value);
   };
   useConsoleTilt(consoleMotionRef);
-  const game = useByteGame({ enabled: powered && section === 'game' && !reader && !secretsView && !backFacing && !radioActive });
+  const game = useByteGame({ enabled: powered && section === 'game' && !reader && !secretsView && !backFacing && !radioActive && !developerActive });
   const { turn: turnSnake, primary: controlSnake } = game;
   const byteRewardFound = foundIds.includes('byte-reward');
   const earnedByteReward = canEarnByteReward(game);
@@ -221,7 +225,7 @@ export default function App() {
     if (earnedByteReward && !byteRewardFound) unlock('byte-reward');
   }, [earnedByteReward, byteRewardFound, unlock]);
   const openByteReward = () => {
-    if (!byteRewardFound || !powered || section !== 'game' || reader || secretsView || backFacing || radioActive) return;
+    if (!byteRewardFound || !powered || section !== 'game' || reader || secretsView || backFacing || radioActive || developerActive) return;
     game.pause();
     codeRef.current.reset();
     setSecretsView('byte-reward');
@@ -229,7 +233,7 @@ export default function App() {
 
   useEffect(() => () => { clearTimeout(pressTimer.current); audioRef.current?.close(); }, []);
   const beep = useCallback((frequency = 440) => {
-    if (!sound || radioActive) return;
+    if (!sound || radioActive || developerActive) return;
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       if (!AudioContext) return;
@@ -244,9 +248,26 @@ export default function App() {
       oscillator.connect(gain); gain.connect(context.destination);
       oscillator.start(); oscillator.stop(context.currentTime + 0.08);
     } catch { /* Sound is optional. */ }
-  }, [sound, radioActive]);
+  }, [sound, radioActive, developerActive]);
+  const activateDeveloperRoom = useCallback(() => {
+    if (developerActive || radioActive) return;
+    // Stop the other source before starting from the Konami/click gesture.
+    stopRadioAudio();
+    startDeveloperAudio();
+    unlock('developer-room');
+    setReader(null); setSecretsView(null);
+    setDeveloperActive(true);
+    resetConsole();
+    codeRef.current.reset(); cartridgeTapsRef.current.reset(); radioTapsRef.current.reset();
+  }, [developerActive, radioActive, stopRadioAudio, startDeveloperAudio, unlock, resetConsole]);
+  const closeDeveloperRoom = useCallback(() => {
+    stopDeveloperAudio();
+    setDeveloperActive(false);
+    codeRef.current.reset();
+  }, [stopDeveloperAudio]);
   const activateRadio = () => {
-    if (radioActive) return;
+    if (radioActive || developerActive) return;
+    stopDeveloperAudio();
     radioStartScroll.current = window.scrollY;
     radioReturnFocus.current = document.activeElement;
     radioAudio.setMix({ radio: 1, piano: 0 });
@@ -267,7 +288,7 @@ export default function App() {
     });
   }, [stopRadioAudio]);
   const tapSpeaker = () => {
-    if (radioActive || !powered || backFacing || reader || secretsView || section === 'game') {
+    if (radioActive || developerActive || !powered || backFacing || reader || secretsView || section === 'game') {
       radioTapsRef.current.reset(); return;
     }
     codeRef.current.reset(); cartridgeTapsRef.current.reset();
@@ -278,15 +299,11 @@ export default function App() {
     pressTimer.current = setTimeout(() => setPressed(''), 130);
   }, []);
   const acceptSecretInput = useCallback(token => {
-    if (!powered || reader || secretsView || backFacing || section === 'game' || section === 'secret') return false;
+    if (!powered || reader || secretsView || backFacing || radioActive || developerActive || section === 'game' || section === 'secret') return false;
     if (!codeRef.current.push(token)) return false;
-    unlock('developer-room');
-    setLcdSecretId('developer-room');
-    setSection('secret'); setIndex(0);
-    resetConsole();
-    flash('a'); beep(880);
+    activateDeveloperRoom();
     return true;
-  }, [powered, reader, secretsView, backFacing, section, unlock, flash, beep, resetConsole]);
+  }, [powered, reader, secretsView, backFacing, radioActive, developerActive, section, activateDeveloperRoom]);
   const discoverBackend = () => {
     if (!backFacing || rearCover.phase !== 'open' || reader || secretsView) return;
     codeRef.current.reset();
@@ -314,9 +331,9 @@ export default function App() {
     flash('a'); beep(880);
   };
   useEffect(() => {
-    if (!powered || reader || secretsView || backFacing || section === 'game' || section === 'secret') codeRef.current.reset();
-  }, [powered, reader, secretsView, backFacing, section]);
-  useEffect(() => { cartridgeTapsRef.current.reset(); radioTapsRef.current.reset(); }, [powered, reader, secretsView, backFacing, section, radioActive]);
+    if (!powered || reader || secretsView || backFacing || radioActive || developerActive || section === 'game' || section === 'secret') codeRef.current.reset();
+  }, [powered, reader, secretsView, backFacing, section, radioActive, developerActive]);
+  useEffect(() => { cartridgeTapsRef.current.reset(); radioTapsRef.current.reset(); }, [powered, reader, secretsView, backFacing, section, radioActive, developerActive]);
   useEffect(() => {
     if (section !== 'secret') return;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -391,7 +408,7 @@ export default function App() {
   useEffect(() => {
     const handleKey = (event) => {
       const nativeConsoleActivation = event.target?.closest?.('.console-brand-mark, .lcd-open, .speaker-trigger, .tiny-visitor-trigger, .boot-start, .game-overlay-actions button') && ['Enter', ' '].includes(event.key);
-      if (radioActive || reader || secretsView || backFacing || nativeConsoleActivation || event.target?.closest?.('.console-orbit-tools, .console-rear') || isSecretInputBlocked(event)) { codeRef.current.reset(); return; }
+      if (radioActive || developerActive || reader || secretsView || backFacing || nativeConsoleActivation || event.target?.closest?.('.console-orbit-tools, .console-rear') || isSecretInputBlocked(event)) { codeRef.current.reset(); return; }
       const key = event.key.toLowerCase();
       const token = keyboardKonamiToken(event);
       const arrows = { arrowup: 'up', arrowdown: 'down', arrowleft: 'left', arrowright: 'right' };
@@ -405,7 +422,7 @@ export default function App() {
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [reader, secretsView, backFacing, radioActive, acceptSecretInput, direction, primary, secondary, start]);
+  }, [reader, secretsView, backFacing, radioActive, developerActive, acceptSecretInput, direction, primary, secondary, start]);
   const openReader = (next = 'about', nextIndex = 0) => setReader({ section: next, index: nextIndex });
   const closeReader = useCallback(() => setReader(null), []);
   const selected = sections.find(item => item.id === section);
@@ -416,8 +433,8 @@ export default function App() {
   const screenTitle = section === 'boot' ? t('POCKET EDITION') : section === 'menu' ? t('YOUR LITTLE WORLD') : section === 'secret' ? t(lcdSecretId === 'cartridge' ? 'BONUS CARTRIDGE' : 'SECRET ROOM') : section === 'game' ? 'BYTE SNAKE' : t(selected?.label).toUpperCase();
   const announcement = !powered ? t('Console powered off') : section === 'boot' ? t('PRESS START TO BEGIN') : section === 'secret' ? t(lcdSecretId === 'cartridge' ? 'Secret found: the hidden cartridge.' : 'Secret found: the developer room.') : section === 'menu' ? t('Menu: {section}', { section: t(sections[selection].label) }) : section === 'projects' ? t('Project {number}: {title}', { number: index + 1, title: currentProject.title }) : section === 'certificates' ? t('Certificate {number}: {title}', { number: index + 1, title: currentCertificate.title }) : section === 'skills' ? t(currentSkills.title) : section === 'game' ? t('Byte Snake. {status}. Score {score}', { status: t(game.status), score: game.score }) : t(selected?.label);
 
-  return <div className="portfolio-page" data-radio-active={radioActive}>
-    <div className="portfolio-surface" ref={portfolioSurfaceRef} inert={radioActive ? '' : undefined} aria-hidden={portfolioHidden || undefined}>
+  return <div className="portfolio-page" data-radio-active={radioActive} data-developer-active={developerActive}>
+    <div className="portfolio-surface" ref={portfolioSurfaceRef} inert={radioActive || developerActive ? '' : undefined} aria-hidden={portfolioHidden || developerActive || undefined}>
     <a className="skip-link" href="#full-portfolio" onClick={event => { event.preventDefault(); openReader(); }}>{t("Skip to full portfolio")}</a>
     <header className="site-header">
       <button className="wordmark" onClick={start} aria-label={t("Pocketfolio home")}><span className="wordmark-icon"><i /><b /><em /></span>pocketfolio<span className="wordmark-dot">.</span></button>
@@ -455,7 +472,7 @@ export default function App() {
               <div className={`lcd ${radioActive ? 'radio-lcd' : section === 'game' ? 'game-lcd' : ''}`} aria-label={t("Console screen")} onTouchStart={event => { swipeStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; }} onTouchEnd={event => { if (!swipeStart.current) return; const dx = event.changedTouches[0].clientX - swipeStart.current.x; const dy = event.changedTouches[0].clientY - swipeStart.current.y; if (Math.max(Math.abs(dx), Math.abs(dy)) > 25) direction(Math.abs(dx) > Math.abs(dy) ? dx > 0 ? 'right' : 'left' : dy > 0 ? 'down' : 'up'); swipeStart.current = null; }}>
                 {radioActive ? <RadioVisualizer t={t} status={radioAudio.status} readSpectrum={radioAudio.readSpectrum} active={!portfolioHidden && radioScene === 'radio'} /> : powered ? section === 'boot' ? <BootScreen t={t} onStart={start} /> : <div className="screen-content" key={section}>
                   <div className="lcd-topline"><span>{screenTitle}</span><span>{section === 'menu' ? '01' : section === 'game' ? pad(game.score) : `${index + 1}/${count}`}</span></div>
-                  {section === 'secret' ? <div className="secret-lcd"><span className="secret-unlocked">✦ {t('SECRET UNLOCKED')} ✦</span>{lcdSecretId === 'cartridge' ? <CartridgeArt /> : <DeveloperRoomArt />}<h2>{t(lcdSecret.title)}</h2><button className="lcd-open" onClick={primary}>{t(lcdSecretId === 'cartridge' ? 'A: LOAD CARTRIDGE' : 'A: ENTER THE ROOM')}<span>↗</span></button></div> : <>
+                  {section === 'secret' ? <div className="secret-lcd"><span className="secret-unlocked">✦ {t('SECRET UNLOCKED')} ✦</span><CartridgeArt /><h2>{t(lcdSecret.title)}</h2><button className="lcd-open" onClick={primary}>{t('A: LOAD CARTRIDGE')}<span>↗</span></button></div> : <>
                   {section === 'menu' ? <div className="lcd-menu-area">
                     <div className="screen-menu">{sections.map((item, i) => <button key={item.id} className={selection === i ? 'active' : ''} aria-current={selection === i ? 'true' : undefined} onMouseEnter={() => setSelection(i)} onClick={() => chooseSection(item.id)}><span>{selection === i ? '▶' : ' '}</span>{t(item.label)}<small>{pad(i + 1)}</small></button>)}</div>
                     <div className="lcd-visitor-slot">{visitor.visible && <TinyVisitor t={t} onGreet={greetVisitor} />}</div>
@@ -506,7 +523,8 @@ export default function App() {
     <div className="secrets-footer"><button type="button" id="secrets-found" className="secrets-footer-button" data-discovered={foundIds.length > 0} onClick={() => setSecretsView('collection')}><span className="secrets-footer-symbol" aria-hidden="true">✧</span>{t('Secrets found')}<span>{foundIds.length}/{secretCatalog.length}</span></button></div>
     </div>
     {radioActive && <RadioJourney t={t} sound={sound} onToggleSound={() => { radioAudio.setSoundFromGesture(!sound); setSound(!sound); }} audioStatus={radioAudio.status} onTogglePlayback={radioAudio.togglePlayback} onClose={closeRadio} onSceneChange={setRadioScene} onMixChange={radioAudio.setMix} onPortfolioHidden={setPortfolioHidden} portfolioRef={portfolioSurfaceRef} startScroll={radioStartScroll.current} />}
+    {developerActive && <DeveloperScene t={t} theme={theme} sound={sound} audioStatus={developerAudio.status} onToggleTheme={() => setTheme(value => value === 'light' ? 'dark' : 'light')} onToggleSound={() => { developerAudio.setSoundFromGesture(!sound); setSound(!sound); }} onTogglePlayback={developerAudio.togglePlayback} onClose={closeDeveloperRoom} />}
     {reader && <Reader reader={reader} setReader={setReader} onClose={closeReader} t={t} />}
-    {secretsView && <SecretsDialog view={secretsView} foundIds={foundIds} onView={view => view === 'radio' ? activateRadio() : setSecretsView(view)} onClose={() => setSecretsView(null)} t={t} />}
+    {secretsView && <SecretsDialog view={secretsView} foundIds={foundIds} onView={view => view === 'radio' ? activateRadio() : view === 'room' ? activateDeveloperRoom() : setSecretsView(view)} onClose={() => setSecretsView(null)} t={t} />}
   </div>;
 }
